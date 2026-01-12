@@ -53,11 +53,25 @@ const Index = () => {
       label: 'PayPal Email'
     },
     { 
-      name: 'Crypto', 
+      name: 'BTC', 
       icon: 'Bitcoin', 
       color: 'from-orange-500 to-yellow-500',
-      address: 'bc1qyour...cryptoaddress',
-      label: 'Crypto Address (BTC/USDT/ETH)'
+      address: 'bc1qyour...bitcoinaddress',
+      label: 'Bitcoin Address'
+    },
+    { 
+      name: 'USDT', 
+      icon: 'DollarSign', 
+      color: 'from-green-500 to-green-600',
+      address: 'TRC20: TYour...USDTaddress',
+      label: 'USDT Address (TRC20)'
+    },
+    { 
+      name: 'Ethereum', 
+      icon: 'Gem', 
+      color: 'from-purple-500 to-indigo-600',
+      address: '0xYour...EthereumAddress',
+      label: 'Ethereum Address'
     }
   ];
 
