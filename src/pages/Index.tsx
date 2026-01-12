@@ -44,32 +44,12 @@ const Index = () => {
     'https://i.postimg.cc/BZmCwv7x/Screenshot-46.jpg',
   ];
 
-  const paymentMethods = [
-    { 
-      name: 'PayPal', 
-      icon: 'Wallet', 
-      color: 'from-blue-500 to-blue-600',
-      address: 'your-paypal@email.com'
-    },
-    { 
-      name: 'USDT', 
-      icon: 'DollarSign', 
-      color: 'from-green-500 to-green-600',
-      address: 'TRC20: TYour...AddressHere'
-    },
-    { 
-      name: 'BTC', 
-      icon: 'Bitcoin', 
-      color: 'from-orange-500 to-yellow-500',
-      address: 'bc1qyour...bitcoinaddress'
-    },
-    { 
-      name: 'Ethereum', 
-      icon: 'Gem', 
-      color: 'from-purple-500 to-indigo-600',
-      address: '0xYour...EthereumAddress'
-    },
-  ];
+  const paymentMethod = { 
+    name: 'PayPal', 
+    icon: 'Wallet', 
+    color: 'from-blue-500 to-blue-600',
+    address: 'your-paypal@email.com'
+  };
 
   const pricingPlans = [
     { price: 12, videos: '1,000', popular: false },
@@ -183,24 +163,21 @@ const Index = () => {
                 </div>
               </div>
               <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
-                Choose Payment Method
+                Payment Method
               </h2>
               <p className="text-lg text-white/80 text-center mb-10">
-                Select your preferred way to pay
+                Complete your purchase with PayPal
               </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {paymentMethods.map((method, index) => (
-                <Button
-                  key={index}
-                  size="lg"
-                  onClick={() => setSelectedPayment(method.name)}
-                  className={`bg-gradient-to-r ${method.color} hover:scale-105 text-white font-semibold py-8 text-lg rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-0`}
-                >
-                  <Icon name={method.icon} className="mr-3" size={24} />
-                  Pay with {method.name}
-                </Button>
-              ))}
+            <div className="max-w-md mx-auto">
+              <Button
+                size="lg"
+                onClick={() => setSelectedPayment(paymentMethod.name)}
+                className={`w-full bg-gradient-to-r ${paymentMethod.color} hover:scale-105 text-white font-semibold py-8 text-xl rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-0`}
+              >
+                <Icon name={paymentMethod.icon} className="mr-3" size={28} />
+                Pay with {paymentMethod.name}
+              </Button>
             </div>
 
               <div className="mt-8 text-center">
@@ -217,15 +194,13 @@ const Index = () => {
         <DialogContent className="sm:max-w-md bg-gradient-to-br from-purple-900 to-pink-900 border-white/20 text-white">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
-              {selectedPayment && (
-                <span className="flex items-center gap-2">
-                  <Icon 
-                    name={paymentMethods.find(m => m.name === selectedPayment)?.icon || 'Wallet'} 
-                    size={28} 
-                  />
-                  Pay with {selectedPayment}
-                </span>
-              )}
+              <span className="flex items-center gap-2">
+                <Icon 
+                  name={paymentMethod.icon} 
+                  size={28} 
+                />
+                Pay with {paymentMethod.name}
+              </span>
             </DialogTitle>
             <DialogDescription className="text-white/70">
               Send payment to the address below
@@ -233,20 +208,17 @@ const Index = () => {
           </DialogHeader>
           <div className="space-y-4">
             <div className="bg-white/10 backdrop-blur p-4 rounded-lg border border-white/20">
-              <p className="text-sm text-white/60 mb-2">Payment Address:</p>
+              <p className="text-sm text-white/60 mb-2">PayPal Email:</p>
               <p className="font-mono text-sm break-all text-white">
-                {selectedPayment && paymentMethods.find(m => m.name === selectedPayment)?.address}
+                {paymentMethod.address}
               </p>
             </div>
             <Button
-              onClick={() => {
-                const address = paymentMethods.find(m => m.name === selectedPayment)?.address;
-                if (address) copyToClipboard(address);
-              }}
+              onClick={() => copyToClipboard(paymentMethod.address)}
               className="w-full bg-white/20 hover:bg-white/30 text-white border border-white/30"
             >
               <Icon name="Copy" className="mr-2" size={18} />
-              Copy Address
+              Copy Email
             </Button>
             <div className="pt-4 text-center text-sm text-white/60">
               <p>After payment, contact us with your transaction ID</p>
