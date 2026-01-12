@@ -21,14 +21,14 @@ const Index = () => {
   }, []);
 
   const galleryImages = [
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/7efcfd8f-f0f7-4f9a-8b34-c984973a3b0d.jpg',
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/924f92bf-d970-40d0-af1d-e11478b2ea6d.jpg',
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/f85e7320-bc01-4793-a6c8-6e831d50c789.jpg',
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/dc79b578-6552-4b9b-91a1-0c40c97fefa8.jpg',
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/67940a35-36f4-46f8-bf0a-c25788cab052.jpg',
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/51d826aa-9063-4fb5-99ec-763bca48d8df.jpg',
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/5f2a8fc1-41fb-4571-9fa4-e1cccd374fe3.jpg',
-    'https://cdn.poehali.dev/projects/b923f0c5-418f-4dde-8b6a-dbf0308f24aa/files/abb6a4b2-2f0f-4ba5-b469-72d5a538d660.jpg',
+    'https://i.postimg.cc/D0pdWC4H/Screenshot-38.jpg',
+    'https://i.postimg.cc/SR17XZzF/Screenshot-39.jpg',
+    'https://i.postimg.cc/nrSYsdQJ/Screenshot-40.jpg',
+    'https://i.postimg.cc/cCkMKD8G/Screenshot-41.jpg',
+    'https://i.postimg.cc/1X7cgWNZ/Screenshot-42.jpg',
+    'https://i.postimg.cc/59smktKv/Screenshot-43.jpg',
+    'https://i.postimg.cc/FFTxnKCg/Screenshot-44.jpg',
+    'https://i.postimg.cc/BZmCwv7x/Screenshot-46.jpg',
   ];
 
   return (
