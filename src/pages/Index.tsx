@@ -49,21 +49,21 @@ const Index = () => {
       name: 'PayPal', 
       icon: 'Wallet', 
       color: 'from-blue-500 to-blue-600',
-      address: 'your-paypal@email.com',
+      address: 'zoid.ketevan@gmail.com',
       label: 'PayPal Email'
     },
     { 
       name: 'BTC', 
       icon: 'Bitcoin', 
       color: 'from-orange-500 to-yellow-500',
-      address: 'bc1qyour...bitcoinaddress',
+      address: '1LHwjpMPtuhzNjUp6nXMXaFmu5EGinvWNY',
       label: 'Bitcoin Address'
     },
     { 
       name: 'USDT', 
       icon: 'DollarSign', 
       color: 'from-green-500 to-green-600',
-      address: 'TRC20: TYour...USDTaddress',
+      address: 'TXHWYwxR2Exj9MCn1wCLTfhi8sMvKUN1bj',
       label: 'USDT Address (TRC20)'
     },
     { 
