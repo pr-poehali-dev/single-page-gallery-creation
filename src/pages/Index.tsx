@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import {
   Dialog,
@@ -13,6 +14,7 @@ import { toast } from '@/hooks/use-toast';
 const Index = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -69,6 +71,13 @@ const Index = () => {
     },
   ];
 
+  const pricingPlans = [
+    { price: 12, videos: '1,000', popular: false },
+    { price: 20, videos: '3,000', popular: true },
+    { price: 30, videos: '5,500', popular: false },
+    { price: 60, videos: '30,000', popular: false },
+  ];
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -114,18 +123,71 @@ const Index = () => {
         </div>
 
         <div 
-          data-animate="payment"
-          className={`max-w-4xl mx-auto transition-all duration-700 ${
-            isVisible['payment'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          data-animate="pricing"
+          className={`max-w-7xl mx-auto mb-16 transition-all duration-700 ${
+            isVisible['pricing'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
-          <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 border border-white/20 shadow-2xl">
-            <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
-              Purchase Now
-            </h2>
-            <p className="text-xl text-white/80 text-center mb-10">
-              Choose your preferred payment method
-            </p>
+          <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
+            Choose Your Plan
+          </h2>
+          <p className="text-xl text-white/80 text-center mb-12">
+            Select the perfect package for your needs
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {pricingPlans.map((plan, index) => (
+              <Card
+                key={index}
+                className={`relative p-8 bg-white/10 backdrop-blur-lg border-2 hover:scale-105 transition-all duration-300 cursor-pointer ${
+                  plan.popular ? 'border-yellow-400 shadow-2xl shadow-yellow-500/50' : 'border-white/20'
+                } ${
+                  selectedPlan === index ? 'ring-4 ring-white/50' : ''
+                }`}
+                onClick={() => setSelectedPlan(index)}
+              >
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-4 py-1 rounded-full text-sm font-bold">
+                    POPULAR
+                  </div>
+                )}
+                <div className="text-center">
+                  <div className="mb-4">
+                    <Icon name="Video" className="text-white mx-auto" size={40} />
+                  </div>
+                  <div className="text-5xl font-black text-white mb-2">
+                    ${plan.price}
+                  </div>
+                  <div className="text-3xl font-bold text-white/90 mb-6">
+                    {plan.videos}
+                  </div>
+                  <p className="text-white/70 text-sm">Videos</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {selectedPlan !== null && (
+          <div 
+            data-animate="payment"
+            className={`max-w-4xl mx-auto transition-all duration-700 ${
+              isVisible['payment'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+            }`}
+          >
+            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 md:p-12 border border-white/20 shadow-2xl">
+              <div className="text-center mb-8">
+                <p className="text-white/70 text-lg mb-2">Selected Plan:</p>
+                <div className="text-4xl font-black text-white">
+                  ${pricingPlans[selectedPlan].price} - {pricingPlans[selectedPlan].videos} Videos
+                </div>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+                Choose Payment Method
+              </h2>
+              <p className="text-lg text-white/80 text-center mb-10">
+                Select your preferred way to pay
+              </p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {paymentMethods.map((method, index) => (
@@ -141,13 +203,14 @@ const Index = () => {
               ))}
             </div>
 
-            <div className="mt-8 text-center">
-              <p className="text-white/60 text-sm">
-                🔒 Secure payment • Instant delivery
-              </p>
+              <div className="mt-8 text-center">
+                <p className="text-white/60 text-sm">
+                  🔒 Secure payment • Instant delivery
+                </p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <Dialog open={!!selectedPayment} onOpenChange={() => setSelectedPayment(null)}>
