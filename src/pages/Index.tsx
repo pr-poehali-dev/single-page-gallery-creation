@@ -64,12 +64,12 @@ const Index = () => {
   }, []);
 
   const galleryImages = [
-    'https://i.postimg.cc/D0pdWC4H/Screenshot-38.jpg',
-    'https://i.postimg.cc/SR17XZzF/Screenshot-39.jpg',
-    'https://i.postimg.cc/nrSYsdQJ/Screenshot-40.jpg',
+    'https://cdn.poehali.dev/files/Screenshot-38.jpg',
+    'https://cdn.poehali.dev/files/Screenshot-39.jpg',
+    'https://cdn.poehali.dev/files/Screenshot-40.jpg',
+    'https://cdn.poehali.dev/files/Screenshot-42.jpg',
+    'https://cdn.poehali.dev/files/Screenshot-43.jpg',
     'https://i.postimg.cc/cCkMKD8G/Screenshot-41.jpg',
-    'https://i.postimg.cc/1X7cgWNZ/Screenshot-42.jpg',
-    'https://i.postimg.cc/59smktKv/Screenshot-43.jpg',
     'https://i.postimg.cc/FFTxnKCg/Screenshot-44.jpg',
     'https://i.postimg.cc/BZmCwv7x/Screenshot-46.jpg',
   ];
