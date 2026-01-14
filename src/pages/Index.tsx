@@ -80,7 +80,8 @@ const Index = () => {
       icon: 'Wallet', 
       color: 'from-blue-500 to-blue-600',
       address: 'zoid.ketevan@gmail.com',
-      label: 'PayPal Email'
+      label: 'PayPal Email',
+      note: 'Use family and friend'
     },
     { 
       name: 'BTC', 
@@ -564,6 +565,14 @@ const Index = () => {
               <p className="font-mono text-sm break-all text-white">
                 {selectedPayment && paymentMethods.find(m => m.name === selectedPayment)?.address}
               </p>
+              {selectedPayment && paymentMethods.find(m => m.name === selectedPayment)?.note && (
+                <div className="mt-3 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded">
+                  <p className="text-xs text-yellow-200 font-semibold flex items-center gap-1">
+                    <Icon name="AlertCircle" size={14} />
+                    {paymentMethods.find(m => m.name === selectedPayment)?.note}
+                  </p>
+                </div>
+              )}
             </div>
             <Button
               onClick={() => {
