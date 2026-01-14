@@ -245,16 +245,33 @@ const Index = () => {
     if (!newMessage.trim() || !userId) return;
 
     try {
-      await fetch(`${API_URL}?action=send`, {
+      const res = await fetch(`${API_URL}?action=send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, message: newMessage })
       });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
+      const data = await res.json();
+      
+      if (data.error) {
+        toast({ title: 'Error', description: data.error, variant: 'destructive' });
+        return;
+      }
+      
       setNewMessage('');
       await loadMessages(userId);
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to send message' });
+      console.error('Send message error:', error);
+      toast({ 
+        title: 'Send Error', 
+        description: 'Could not send message. Please try again.',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -264,7 +281,7 @@ const Index = () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         try {
-          await fetch(`${API_URL}?action=send`, {
+          const res = await fetch(`${API_URL}?action=send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -273,10 +290,27 @@ const Index = () => {
               imageUrl: reader.result as string
             })
           });
+          
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+          }
+          
+          const data = await res.json();
+          
+          if (data.error) {
+            toast({ title: 'Error', description: data.error, variant: 'destructive' });
+            return;
+          }
+          
           await loadMessages(userId);
           setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
         } catch (error) {
-          toast({ title: 'Error', description: 'Failed to upload image' });
+          console.error('Image upload error:', error);
+          toast({ 
+            title: 'Upload Error', 
+            description: 'Failed to upload image. Please try again.',
+            variant: 'destructive'
+          });
         }
       };
       reader.readAsDataURL(file);
