@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -9,13 +9,34 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+
+interface ChatMessage {
+  id: number;
+  text: string;
+  sender: 'user' | 'admin';
+  timestamp: Date;
+  image?: string;
+}
 
 const Index = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [visitors, setVisitors] = useState<number>(0);
+  const [chatOpen, setChatOpen] = useState<boolean>(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    {
+      id: 1,
+      text: 'Hello! I\'m the admin. How can I help you today?',
+      sender: 'admin',
+      timestamp: new Date(),
+    }
+  ]);
+  const [newMessage, setNewMessage] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -108,6 +129,39 @@ const Index = () => {
       title: "Copied!",
       description: "Address copied to clipboard",
     });
+  };
+
+  const handleSendMessage = () => {
+    if (newMessage.trim()) {
+      const message: ChatMessage = {
+        id: messages.length + 1,
+        text: newMessage,
+        sender: 'user',
+        timestamp: new Date(),
+      };
+      setMessages([...messages, message]);
+      setNewMessage('');
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    }
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const message: ChatMessage = {
+          id: messages.length + 1,
+          text: 'Sent an image',
+          sender: 'user',
+          timestamp: new Date(),
+          image: reader.result as string,
+        };
+        setMessages([...messages, message]);
+        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -270,6 +324,116 @@ const Index = () => {
               </div>
             </div>
           </div>
+        )}
+      </div>
+
+      <div className="fixed bottom-6 left-6 z-50">
+        {!chatOpen ? (
+          <Button
+            onClick={() => setChatOpen(true)}
+            size="lg"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full w-16 h-16 p-0"
+          >
+            <Icon name="MessageCircle" size={28} />
+          </Button>
+        ) : (
+          <Card className="w-96 h-[500px] bg-white/95 backdrop-blur-lg border-2 border-white/30 shadow-2xl flex flex-col">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-t-lg flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                  <Icon name="User" className="text-white" size={24} />
+                </div>
+                <div>
+                  <div className="font-bold text-white">Admin</div>
+                  <div className="text-xs text-white/70 flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                    Online
+                  </div>
+                </div>
+              </div>
+              <Button
+                onClick={() => setChatOpen(false)}
+                variant="ghost"
+                size="sm"
+                className="text-white hover:bg-white/20"
+              >
+                <Icon name="X" size={20} />
+              </Button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div className="bg-purple-100 border-l-4 border-purple-600 p-3 rounded">
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon name="Pin" size={14} className="text-purple-600" />
+                  <span className="font-semibold text-sm text-purple-900">Pinned Message</span>
+                </div>
+                <p className="text-sm text-purple-800">
+                  Welcome! Send your transaction ID after payment. We'll verify it within 5 minutes.
+                </p>
+              </div>
+
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                      msg.sender === 'user'
+                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                        : 'bg-gray-200 text-gray-900'
+                    }`}
+                  >
+                    {msg.image && (
+                      <img
+                        src={msg.image}
+                        alt="Uploaded"
+                        className="rounded-lg mb-2 max-w-full"
+                      />
+                    )}
+                    <p className="text-sm">{msg.text}</p>
+                    <p className={`text-xs mt-1 ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
+                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+
+            <div className="p-4 border-t border-gray-200">
+              <div className="flex gap-2">
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  variant="outline"
+                  size="sm"
+                  className="px-3"
+                >
+                  <Icon name="Image" size={20} />
+                </Button>
+                <Input
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  placeholder="Type a message..."
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleSendMessage}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                >
+                  <Icon name="Send" size={20} />
+                </Button>
+              </div>
+            </div>
+          </Card>
         )}
       </div>
 
