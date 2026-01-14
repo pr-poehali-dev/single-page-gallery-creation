@@ -11,6 +11,7 @@ const API_URL = 'https://functions.poehali.dev/c51dbb61-b1e5-4923-98ba-c9ddd569b
 interface User {
   id: number;
   email: string;
+  nickname: string;
   joined: string;
   messageCount: number;
   lastMessage: string | null;
@@ -333,22 +334,12 @@ const AdminPanel = () => {
                             {user.isPinned && (
                               <Icon name="Pin" size={14} className="text-yellow-400 shrink-0" />
                             )}
-                            <div className="font-semibold truncate">{user.email}</div>
+                            <div className="font-semibold truncate">{user.nickname}</div>
                           </div>
                           <div className="text-xs opacity-70">
                             {user.messageCount} messages
                           </div>
                         </div>
-                        <a
-                          href={`https://mail.google.com/mail/?view=cm&fs=1&to=${user.email}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="shrink-0 p-1 hover:bg-white/20 rounded transition-colors"
-                          title="Send email"
-                        >
-                          <Icon name="Mail" size={16} />
-                        </a>
                       </div>
                     </button>
                   </div>
@@ -364,16 +355,7 @@ const AdminPanel = () => {
                 <div className="p-4 border-b border-white/20 flex justify-between items-center">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-bold text-white text-lg">{selectedUser.email}</h3>
-                      <a
-                        href={`https://mail.google.com/mail/?view=cm&fs=1&to=${selectedUser.email}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 transition-colors"
-                        title="Send email"
-                      >
-                        <Icon name="Mail" size={18} />
-                      </a>
+                      <h3 className="font-bold text-white text-lg">{selectedUser.nickname}</h3>
                     </div>
                     <p className="text-sm text-white/60">
                       Joined: {new Date(selectedUser.joined).toLocaleDateString()}

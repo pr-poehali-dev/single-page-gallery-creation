@@ -182,9 +182,12 @@ def handler(event: dict, context) -> dict:
                 
                 users = []
                 for row in cur.fetchall():
+                    email = row[1]
+                    nickname = email.split('@')[0] if '@' in email else email
                     users.append({
                         'id': row[0],
                         'email': row[1],
+                        'nickname': nickname,
                         'joined': row[2].isoformat(),
                         'messageCount': row[3],
                         'lastMessage': row[4].isoformat() if row[4] else None,
