@@ -226,12 +226,23 @@ const Index = () => {
         )}
       </div>
 
-      <div className="fixed bottom-6 right-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-4 py-3 shadow-xl">
-        <div className="flex items-center gap-2 text-white">
-          <Icon name="Users" size={20} />
-          <div className="text-sm">
-            <div className="font-semibold">{visitors.toLocaleString()}</div>
-            <div className="text-xs text-white/60">Visitors</div>
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3">
+        <Button
+          onClick={() => window.open('https://t.me/tokare2', '_blank')}
+          size="lg"
+          className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold shadow-xl hover:shadow-2xl transition-all duration-300"
+        >
+          <Icon name="Send" className="mr-2" size={20} />
+          Contact Admin
+        </Button>
+        
+        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-4 py-3 shadow-xl">
+          <div className="flex items-center gap-2 text-white">
+            <Icon name="Users" size={20} />
+            <div className="text-sm">
+              <div className="font-semibold">{visitors.toLocaleString()}</div>
+              <div className="text-xs text-white/60">Visitors</div>
+            </div>
           </div>
         </div>
       </div>
