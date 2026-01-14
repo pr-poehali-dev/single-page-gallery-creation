@@ -112,7 +112,7 @@ const AdminPanel = () => {
     loadUsers();
     const interval = setInterval(loadUsers, 5000);
     return () => clearInterval(interval);
-  }, [loadUsers]);
+  }, []);
 
   useEffect(() => {
     if (selectedUser) {
@@ -120,7 +120,7 @@ const AdminPanel = () => {
       setUnreadCount(0);
       document.title = 'Admin Panel';
     }
-  }, [selectedUser, loadMessages]);
+  }, [selectedUser]);
 
   const sendAdminMessage = async () => {
     if (!newMessage.trim() || !selectedUser) return;
