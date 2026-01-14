@@ -78,13 +78,20 @@ const AdminPanel = () => {
             duration: 5000,
           });
           
-          // Browser notification для неактивной вкладки
-          if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+          // Browser notification с вибрацией для мобильных
+          if ('Notification' in window && Notification.permission === 'granted') {
+            // Вибрация для мобильных устройств
+            if ('vibrate' in navigator) {
+              navigator.vibrate([200, 100, 200]);
+            }
+            
             new Notification('💬 Новое сообщение!', {
               body: `От ${user.email}`,
               icon: '/favicon.ico',
               tag: `new-message-${user.id}`,
-              requireInteraction: false
+              requireInteraction: true,
+              vibrate: [200, 100, 200],
+              badge: '/favicon.ico'
             });
           }
         }
@@ -114,8 +121,16 @@ const AdminPanel = () => {
 
     audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWm98OScRxELTqPh8b9uJwU3jdXuyXUjBTGT3O+jcB8EM3+z7s18IwUymN3vmnMeBDN+seXHgCMF');
     
+    // Запрашиваем разрешение на уведомления
     if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          toast({
+            title: '🔔 Уведомления включены',
+            description: 'Вы будете получать уведомления о новых сообщениях'
+          });
+        }
+      });
     }
 
     loadUsers();
