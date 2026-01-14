@@ -15,6 +15,7 @@ const Index = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
+  const [visitors, setVisitors] = useState<number>(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,6 +32,14 @@ const Index = () => {
     window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const storedCount = localStorage.getItem('visitorCount');
+    const currentCount = storedCount ? parseInt(storedCount) : 0;
+    const newCount = currentCount + 1;
+    localStorage.setItem('visitorCount', newCount.toString());
+    setVisitors(newCount);
   }, []);
 
   const galleryImages = [
@@ -217,6 +226,16 @@ const Index = () => {
         )}
       </div>
 
+      <div className="fixed bottom-6 right-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-4 py-3 shadow-xl">
+        <div className="flex items-center gap-2 text-white">
+          <Icon name="Users" size={20} />
+          <div className="text-sm">
+            <div className="font-semibold">{visitors.toLocaleString()}</div>
+            <div className="text-xs text-white/60">Visitors</div>
+          </div>
+        </div>
+      </div>
+
       <Dialog open={!!selectedPayment} onOpenChange={() => setSelectedPayment(null)}>
         <DialogContent className="sm:max-w-md bg-gradient-to-br from-purple-900 to-pink-900 border-white/20 text-white">
           <DialogHeader>
@@ -254,8 +273,17 @@ const Index = () => {
               <Icon name="Copy" className="mr-2" size={18} />
               Copy Address
             </Button>
-            <div className="pt-4 text-center text-sm text-white/60">
-              <p>After payment, contact us with your transaction ID</p>
+            <div className="pt-4 space-y-3">
+              <div className="text-center text-sm text-white/60">
+                <p>After payment, contact admin with your transaction ID</p>
+              </div>
+              <Button
+                onClick={() => window.open('https://t.me/tokare2', '_blank')}
+                className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold"
+              >
+                <Icon name="Send" className="mr-2" size={18} />
+                Contact Admin on Telegram
+              </Button>
             </div>
           </div>
         </DialogContent>
