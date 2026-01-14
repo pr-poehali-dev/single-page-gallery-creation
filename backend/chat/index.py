@@ -20,7 +20,15 @@ def handler(event: dict, context) -> dict:
     
     try:
         # Подключение к БД с указанием схемы
-        db_url = os.environ['DATABASE_URL']
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            return {
+                'statusCode': 500,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Database not configured'}),
+                'isBase64Encoded': False
+            }
+        
         schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
         conn = psycopg2.connect(db_url, options=f'-c search_path={schema}')
         cur = conn.cursor()
