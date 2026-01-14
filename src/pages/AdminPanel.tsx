@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ const AdminPanel = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const loadMessages = async (userId: number) => {
+  const loadMessages = useCallback(async (userId: number) => {
     try {
       const res = await fetch(`${API_URL}?action=messages&userId=${userId}`);
       const data = await res.json();
@@ -44,9 +44,9 @@ const AdminPanel = () => {
     } catch (error) {
       console.error('Failed to load messages:', error);
     }
-  };
+  }, []);
 
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}?action=users`);
       const data = await res.json();
@@ -94,7 +94,7 @@ const AdminPanel = () => {
     } catch (error) {
       console.error('Failed to load users:', error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const isAuth = localStorage.getItem('adminAuth');
@@ -112,7 +112,7 @@ const AdminPanel = () => {
     loadUsers();
     const interval = setInterval(loadUsers, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [loadUsers]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -120,7 +120,7 @@ const AdminPanel = () => {
       setUnreadCount(0);
       document.title = 'Admin Panel';
     }
-  }, [selectedUser]);
+  }, [selectedUser, loadMessages]);
 
   const sendAdminMessage = async () => {
     if (!newMessage.trim() || !selectedUser) return;
