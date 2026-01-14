@@ -210,6 +210,35 @@ const AdminPanel = () => {
     navigate('/admin-login');
   };
 
+  const clearChat = async (userId: number) => {
+    if (!confirm('Вы уверены, что хотите очистить этот чат?')) return;
+    
+    setLoading(true);
+    try {
+      await fetch(`${API_URL}?action=clear`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      
+      setMessages([]);
+      toast({
+        title: '✅ Чат очищен',
+        description: 'История сообщений удалена',
+      });
+      
+      await loadUsers();
+    } catch (error) {
+      console.error('Failed to clear chat:', error);
+      toast({
+        title: '❌ Ошибка',
+        description: 'Не удалось очистить чат',
+        variant: 'destructive'
+      });
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="container mx-auto">
@@ -272,11 +301,23 @@ const AdminPanel = () => {
           <Card className="md:col-span-2 flex flex-col bg-white/10 backdrop-blur border-white/20">
             {selectedUser ? (
               <>
-                <div className="p-4 border-b border-white/20">
-                  <h3 className="font-bold text-white text-lg">{selectedUser.email}</h3>
-                  <p className="text-sm text-white/60">
-                    Joined: {new Date(selectedUser.joined).toLocaleDateString()}
-                  </p>
+                <div className="p-4 border-b border-white/20 flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-white text-lg">{selectedUser.email}</h3>
+                    <p className="text-sm text-white/60">
+                      Joined: {new Date(selectedUser.joined).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => clearChat(selectedUser.id)}
+                    variant="ghost"
+                    size="sm"
+                    disabled={loading}
+                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                  >
+                    <Icon name="Trash2" size={18} className="mr-1" />
+                    Очистить
+                  </Button>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">

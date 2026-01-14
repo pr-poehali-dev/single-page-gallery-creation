@@ -91,6 +91,26 @@ def handler(event: dict, context) -> dict:
                         'timestamp': created_at.isoformat()
                     })
                 }
+            
+            elif action == 'clear':
+                # Очистка чата пользователя
+                user_id = body.get('userId')
+                
+                if not user_id:
+                    return {
+                        'statusCode': 400,
+                        'headers': cors_headers,
+                        'body': json.dumps({'error': 'User ID required'})
+                    }
+                
+                cur.execute("DELETE FROM chat_messages WHERE user_id = %s", (user_id,))
+                conn.commit()
+                
+                return {
+                    'statusCode': 200,
+                    'headers': cors_headers,
+                    'body': json.dumps({'success': True})
+                }
         
         elif method == 'GET':
             if action == 'messages':
