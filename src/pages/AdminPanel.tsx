@@ -35,22 +35,31 @@ const AdminPanel = () => {
   const previousMessageCountRef = useRef<{ [userId: number]: number }>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const loadingMessagesRef = useRef<boolean>(false);
 
   const loadMessages = useCallback(async (userId: number) => {
+    if (!userId || loadingMessagesRef.current) return;
+    
+    loadingMessagesRef.current = true;
     try {
       const res = await fetch(`${API_URL}?action=messages&userId=${userId}`);
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      setMessages(data.messages);
+      setMessages(data.messages || []);
     } catch (error) {
       console.error('Failed to load messages:', error);
+      setMessages([]);
+    } finally {
+      loadingMessagesRef.current = false;
     }
   }, []);
 
   const loadUsers = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}?action=users`);
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      const newUsers = data.users;
+      const newUsers = data.users || [];
       
       // Проверяем новые сообщения
       let hasNewMessages = false;
