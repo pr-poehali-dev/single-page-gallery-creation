@@ -92,11 +92,14 @@ const Index = () => {
   ];
 
   const cryptoDonations = [
-    { donor: 'Anonymous', amount: '0.05 BTC', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
-    { donor: 'CryptoFan23', amount: '500 USDT', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
-    { donor: 'Whale_Investor', amount: '2.5 ETH', currency: 'Ethereum', icon: 'Gem', color: 'from-purple-500 to-indigo-600' },
-    { donor: 'BTC_Lover', amount: '0.1 BTC', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
-    { donor: 'Generous_User', amount: '1000 USDT', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
+    { donor: 'Anonymous', amount: '$10', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
+    { donor: 'CryptoFan23', amount: '$20', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
+    { donor: 'Whale_Investor', amount: '$30', currency: 'Ethereum', icon: 'Gem', color: 'from-purple-500 to-indigo-600' },
+    { donor: 'BTC_Lover', amount: '$60', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
+    { donor: 'Generous_User', amount: '$20', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
+    { donor: 'EthereumFan', amount: '$30', currency: 'Ethereum', icon: 'Gem', color: 'from-purple-500 to-indigo-600' },
+    { donor: 'Supporter_101', amount: '$10', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
+    { donor: 'BigDonor', amount: '$60', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
   ];
 
   const copyToClipboard = (text: string) => {
