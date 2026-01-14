@@ -339,15 +339,35 @@ const Index = () => {
     if (savedUserId && savedNickname) {
       const uid = parseInt(savedUserId);
       if (!isNaN(uid) && uid > 0) {
-        setUserId(uid);
-        setUserNickname(savedNickname);
-        setIsAuthorized(true);
-        loadMessages(uid);
+        // Проверяем, существует ли пользователь
+        fetch(`${API_URL}?action=messages&userId=${uid}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+          mode: 'cors'
+        })
+          .then(res => {
+            if (res.ok) {
+              setUserId(uid);
+              setUserNickname(savedNickname);
+              setIsAuthorized(true);
+              return loadMessages(uid);
+            } else {
+              // Пользователь не найден, очищаем localStorage
+              localStorage.removeItem('chatUserId');
+              localStorage.removeItem('chatUserNickname');
+            }
+          })
+          .catch(() => {
+            // Ошибка сети, очищаем localStorage
+            localStorage.removeItem('chatUserId');
+            localStorage.removeItem('chatUserNickname');
+          });
       } else {
         localStorage.removeItem('chatUserId');
         localStorage.removeItem('chatUserNickname');
       }
     }
+   
   }, []);
 
   useEffect(() => {
