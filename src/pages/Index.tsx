@@ -209,8 +209,13 @@ const Index = () => {
   };
 
   const loadMessages = async (uid: number) => {
+    if (!uid) return;
     try {
       const res = await fetch(`${API_URL}?action=messages&userId=${uid}`);
+      if (!res.ok) {
+        console.error('Failed to fetch messages:', res.status);
+        return;
+      }
       const data = await res.json();
       if (data.messages) {
         setMessages(data.messages.map((msg: any) => ({
@@ -277,11 +282,12 @@ const Index = () => {
   }, []);
 
   useEffect(() => {
-    if (isAuthorized && userId) {
-      const interval = setInterval(() => loadMessages(userId), 3000);
+    if (isAuthorized && userId && chatOpen) {
+      loadMessages(userId);
+      const interval = setInterval(() => loadMessages(userId), 5000);
       return () => clearInterval(interval);
     }
-  }, [isAuthorized, userId]);
+  }, [isAuthorized, userId, chatOpen]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500">
