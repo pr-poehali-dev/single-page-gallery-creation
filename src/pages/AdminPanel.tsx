@@ -55,7 +55,7 @@ const AdminPanel = () => {
     loadUsers();
     const interval = setInterval(loadUsers, 5000);
     return () => clearInterval(interval);
-  }, []);]
+  }, []);
 
   useEffect(() => {
     if (selectedUser) {
