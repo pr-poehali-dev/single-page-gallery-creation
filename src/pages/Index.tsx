@@ -123,6 +123,44 @@ const Index = () => {
     { donor: 'BigDonor', amount: '$60', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
   ];
 
+  const reviews = [
+    { 
+      name: 'John D.', 
+      plan: '$20 Plan', 
+      rating: 5, 
+      text: 'Everything received! Thank you so much, excellent quality and fast delivery!',
+      date: '2 days ago'
+    },
+    { 
+      name: 'Sarah M.', 
+      plan: '$60 Plan', 
+      rating: 5, 
+      text: 'Amazing collection! Got all 30,000 videos as promised. Best purchase ever!',
+      date: '5 days ago'
+    },
+    { 
+      name: 'Mike R.', 
+      plan: '$12 Plan', 
+      rating: 5, 
+      text: 'Great service! Received everything within minutes. Highly recommend!',
+      date: '1 week ago'
+    },
+    { 
+      name: 'Emma L.', 
+      plan: '$30 Plan', 
+      rating: 5, 
+      text: 'Perfect! All files working perfectly. Admin was very helpful. Thanks!',
+      date: '1 week ago'
+    },
+    { 
+      name: 'Alex K.', 
+      plan: '$20 Plan', 
+      rating: 5, 
+      text: 'Received all content quickly. Good quality, would buy again. Thank you!',
+      date: '2 weeks ago'
+    },
+  ];
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -325,6 +363,48 @@ const Index = () => {
             </div>
           </div>
         )}
+
+        <div 
+          data-animate="reviews"
+          className={`max-w-7xl mx-auto mb-16 transition-all duration-700 ${
+            isVisible['reviews'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
+            Customer Reviews
+          </h2>
+          <p className="text-xl text-white/80 text-center mb-12">
+            What our customers say about us ⭐
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {reviews.map((review, index) => (
+              <Card
+                key={index}
+                className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 hover:scale-105 transition-all duration-300"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div>
+                    <div className="font-bold text-white text-lg">{review.name}</div>
+                    <div className="text-white/60 text-sm">{review.plan}</div>
+                  </div>
+                  <div className="flex gap-1">
+                    {[...Array(review.rating)].map((_, i) => (
+                      <Icon key={i} name="Star" className="text-yellow-400 fill-yellow-400" size={16} />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-white/90 text-sm mb-3 leading-relaxed">
+                  "{review.text}"
+                </p>
+                <div className="flex items-center gap-2 text-white/50 text-xs">
+                  <Icon name="Clock" size={14} />
+                  {review.date}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
       </div>
 
       <div className="fixed bottom-6 left-6 z-50">
