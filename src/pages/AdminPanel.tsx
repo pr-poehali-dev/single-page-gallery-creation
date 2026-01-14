@@ -14,6 +14,7 @@ interface User {
   joined: string;
   messageCount: number;
   lastMessage: string | null;
+  isPinned?: boolean;
 }
 
 interface Message {
@@ -305,7 +306,9 @@ const AdminPanel = () => {
                       className={`relative w-full p-3 rounded-lg text-left transition-all ${
                         selectedUser?.id === user.id
                           ? 'bg-purple-500 text-white'
-                          : 'bg-white/5 text-white/80 hover:bg-white/10'
+                          : user.isPinned 
+                            ? 'bg-yellow-500/20 text-white border border-yellow-500/30 hover:bg-yellow-500/30'
+                            : 'bg-white/5 text-white/80 hover:bg-white/10'
                       }`}
                     >
                       {hasNewMessages && (
@@ -313,7 +316,12 @@ const AdminPanel = () => {
                       )}
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <div className="font-semibold truncate">{user.email}</div>
+                          <div className="flex items-center gap-1">
+                            {user.isPinned && (
+                              <Icon name="Pin" size={14} className="text-yellow-400 shrink-0" />
+                            )}
+                            <div className="font-semibold truncate">{user.email}</div>
+                          </div>
                           <div className="text-xs opacity-70">
                             {user.messageCount} messages
                           </div>

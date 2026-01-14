@@ -155,11 +155,12 @@ def handler(event: dict, context) -> dict:
                         u.email, 
                         u.created_at,
                         COUNT(m.id) as message_count,
-                        MAX(m.created_at) as last_message
+                        MAX(m.created_at) as last_message,
+                        u.is_pinned
                     FROM chat_users u
                     LEFT JOIN chat_messages m ON u.id = m.user_id AND m.is_admin = false
-                    GROUP BY u.id, u.email, u.created_at
-                    ORDER BY last_message DESC NULLS LAST
+                    GROUP BY u.id, u.email, u.created_at, u.is_pinned
+                    ORDER BY u.is_pinned DESC, last_message DESC NULLS LAST
                 """)
                 
                 users = []
@@ -169,7 +170,8 @@ def handler(event: dict, context) -> dict:
                         'email': row[1],
                         'joined': row[2].isoformat(),
                         'messageCount': row[3],
-                        'lastMessage': row[4].isoformat() if row[4] else None
+                        'lastMessage': row[4].isoformat() if row[4] else None,
+                        'isPinned': row[5] if row[5] else False
                     })
                 
                 return {
