@@ -16,7 +16,7 @@ def handler(event: dict, context) -> dict:
     }
     
     if method == 'OPTIONS':
-        return {'statusCode': 200, 'headers': cors_headers, 'body': ''}
+        return {'statusCode': 200, 'headers': cors_headers, 'body': '', 'isBase64Encoded': False}
     
     try:
         # Подключение к БД с указанием схемы
@@ -39,7 +39,8 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 400,
                         'headers': cors_headers,
-                        'body': json.dumps({'error': 'Invalid email'})
+                        'body': json.dumps({'error': 'Invalid email'}),
+                        'isBase64Encoded': False
                     }
                 
                 # Проверяем существование пользователя
@@ -60,7 +61,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': cors_headers,
-                    'body': json.dumps({'userId': user_id, 'email': email})
+                    'body': json.dumps({'userId': user_id, 'email': email}),
+                    'isBase64Encoded': False
                 }
             
             elif action == 'send':
@@ -74,7 +76,8 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 400,
                         'headers': cors_headers,
-                        'body': json.dumps({'error': 'Invalid request'})
+                        'body': json.dumps({'error': 'Invalid request'}),
+                        'isBase64Encoded': False
                     }
                 
                 cur.execute(
@@ -90,7 +93,8 @@ def handler(event: dict, context) -> dict:
                     'body': json.dumps({
                         'messageId': msg_id,
                         'timestamp': created_at.isoformat()
-                    })
+                    }),
+                    'isBase64Encoded': False
                 }
             
             elif action == 'clear':
@@ -110,7 +114,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': cors_headers,
-                    'body': json.dumps({'success': True})
+                    'body': json.dumps({'success': True}),
+                    'isBase64Encoded': False
                 }
         
         elif method == 'GET':
@@ -122,7 +127,8 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 400,
                         'headers': cors_headers,
-                        'body': json.dumps({'error': 'User ID required'})
+                        'body': json.dumps({'error': 'User ID required'}),
+                        'isBase64Encoded': False
                     }
                 
                 cur.execute("""
@@ -145,7 +151,8 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': cors_headers,
-                    'body': json.dumps({'messages': messages})
+                    'body': json.dumps({'messages': messages}),
+                    'isBase64Encoded': False
                 }
             
             elif action == 'users':
@@ -178,20 +185,23 @@ def handler(event: dict, context) -> dict:
                 return {
                     'statusCode': 200,
                     'headers': cors_headers,
-                    'body': json.dumps({'users': users})
+                    'body': json.dumps({'users': users}),
+                    'isBase64Encoded': False
                 }
         
         return {
             'statusCode': 400,
             'headers': cors_headers,
-            'body': json.dumps({'error': 'Invalid action'})
+            'body': json.dumps({'error': 'Invalid action'}),
+            'isBase64Encoded': False
         }
     
     except Exception as e:
         return {
             'statusCode': 500,
             'headers': cors_headers,
-            'body': json.dumps({'error': str(e)})
+            'body': json.dumps({'error': str(e)}),
+            'isBase64Encoded': False
         }
     finally:
         if 'cur' in locals():
