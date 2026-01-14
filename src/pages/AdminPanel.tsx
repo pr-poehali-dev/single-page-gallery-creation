@@ -36,35 +36,15 @@ const AdminPanel = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    // Проверяем авторизацию
-    const isAuth = localStorage.getItem('adminAuth');
-    if (!isAuth) {
-      window.location.href = '/admin-login';
-      return;
+  const loadMessages = async (userId: number) => {
+    try {
+      const res = await fetch(`${API_URL}?action=messages&userId=${userId}`);
+      const data = await res.json();
+      setMessages(data.messages);
+    } catch (error) {
+      console.error('Failed to load messages:', error);
     }
-
-    // Создаём звук уведомления
-    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWm98OScRxELTqPh8b9uJwU3jdXuyXUjBTGT3O+jcB8EM3+z7s18IwUymN3vmnMeBDN+seXHgCMF');
-    
-    // Запрашиваем разрешение на уведомления
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-
-    loadUsers();
-    const interval = setInterval(loadUsers, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (selectedUser) {
-      loadMessages(selectedUser.id);
-      // Сбрасываем счётчик непрочитанных при открытии чата
-      setUnreadCount(0);
-      document.title = 'Admin Panel';
-    }
-  }, [selectedUser]);
+  };
 
   const loadUsers = async () => {
     try {
@@ -116,15 +96,31 @@ const AdminPanel = () => {
     }
   };
 
-  const loadMessages = async (userId: number) => {
-    try {
-      const res = await fetch(`${API_URL}?action=messages&userId=${userId}`);
-      const data = await res.json();
-      setMessages(data.messages);
-    } catch (error) {
-      console.error('Failed to load messages:', error);
+  useEffect(() => {
+    const isAuth = localStorage.getItem('adminAuth');
+    if (!isAuth) {
+      window.location.href = '/admin-login';
+      return;
     }
-  };
+
+    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWm98OScRxELTqPh8b9uJwU3jdXuyXUjBTGT3O+jcB8EM3+z7s18IwUymN3vmnMeBDN+seXHgCMF');
+    
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+
+    loadUsers();
+    const interval = setInterval(loadUsers, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    if (selectedUser) {
+      loadMessages(selectedUser.id);
+      setUnreadCount(0);
+      document.title = 'Admin Panel';
+    }
+  }, [selectedUser]);
 
   const sendAdminMessage = async () => {
     if (!newMessage.trim() || !selectedUser) return;
