@@ -191,10 +191,13 @@ const Index = () => {
       const res = await fetch(`${API_URL}?action=register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        mode: 'cors',
         body: JSON.stringify({ email: emailInput.toLowerCase().trim() })
       });
       
       if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Login failed:', res.status, errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
@@ -224,9 +227,15 @@ const Index = () => {
   const loadMessages = async (uid: number) => {
     if (!uid) return;
     try {
-      const res = await fetch(`${API_URL}?action=messages&userId=${uid}`);
+      const res = await fetch(`${API_URL}?action=messages&userId=${uid}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors'
+      });
       if (!res.ok) {
-        console.error('Failed to fetch messages:', res.status);
+        console.error('Failed to fetch messages:', res.status, await res.text());
         return;
       }
       const data = await res.json();
@@ -248,10 +257,13 @@ const Index = () => {
       const res = await fetch(`${API_URL}?action=send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        mode: 'cors',
         body: JSON.stringify({ userId, message: newMessage })
       });
       
       if (!res.ok) {
+        const errorText = await res.text();
+        console.error('Send failed:', res.status, errorText);
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       
@@ -284,6 +296,7 @@ const Index = () => {
           const res = await fetch(`${API_URL}?action=send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            mode: 'cors',
             body: JSON.stringify({
               userId,
               message: 'Sent an image',
@@ -292,6 +305,8 @@ const Index = () => {
           });
           
           if (!res.ok) {
+            const errorText = await res.text();
+            console.error('Image upload failed:', res.status, errorText);
             throw new Error(`HTTP error! status: ${res.status}`);
           }
           
