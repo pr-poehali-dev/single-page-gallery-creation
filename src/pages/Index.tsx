@@ -29,9 +29,9 @@ const Index = () => {
   const [visitors, setVisitors] = useState<number>(0);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
   const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
-  const [userEmail, setUserEmail] = useState<string>('');
+  const [userNickname, setUserNickname] = useState<string>('');
   const [userId, setUserId] = useState<number | null>(null);
-  const [emailInput, setEmailInput] = useState<string>('');
+  const [nicknameInput, setNicknameInput] = useState<string>('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -182,17 +182,18 @@ const Index = () => {
   };
 
   const handleLogin = async () => {
-    if (!emailInput.trim() || !emailInput.includes('@')) {
-      toast({ title: 'Error', description: 'Please enter a valid email' });
+    if (!nicknameInput.trim() || nicknameInput.trim().length < 2) {
+      toast({ title: 'Error', description: 'Please enter a nickname (min 2 characters)' });
       return;
     }
 
     try {
+      const nickname = nicknameInput.trim();
       const res = await fetch(`${API_URL}?action=register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         mode: 'cors',
-        body: JSON.stringify({ email: emailInput.toLowerCase().trim() })
+        body: JSON.stringify({ email: `${nickname}@guest.local` })
       });
       
       if (!res.ok) {
@@ -205,10 +206,10 @@ const Index = () => {
       
       if (data.userId) {
         setUserId(data.userId);
-        setUserEmail(data.email);
+        setUserNickname(nickname);
         setIsAuthorized(true);
         localStorage.setItem('chatUserId', data.userId.toString());
-        localStorage.setItem('chatUserEmail', data.email);
+        localStorage.setItem('chatUserNickname', nickname);
         await loadMessages(data.userId);
         toast({ title: '✅ Connected', description: 'Chat is ready!' });
       } else if (data.error) {
@@ -334,18 +335,17 @@ const Index = () => {
 
   useEffect(() => {
     const savedUserId = localStorage.getItem('chatUserId');
-    const savedEmail = localStorage.getItem('chatUserEmail');
-    if (savedUserId && savedEmail) {
+    const savedNickname = localStorage.getItem('chatUserNickname');
+    if (savedUserId && savedNickname) {
       const uid = parseInt(savedUserId);
       if (!isNaN(uid) && uid > 0) {
         setUserId(uid);
-        setUserEmail(savedEmail);
+        setUserNickname(savedNickname);
         setIsAuthorized(true);
         loadMessages(uid);
       } else {
-        // Очищаем невалидные данные
         localStorage.removeItem('chatUserId');
-        localStorage.removeItem('chatUserEmail');
+        localStorage.removeItem('chatUserNickname');
       }
     }
   }, []);
@@ -601,19 +601,20 @@ const Index = () => {
               <div className="flex-1 flex items-center justify-center p-6">
                 <div className="w-full max-w-sm space-y-4">
                   <div className="text-center mb-6">
-                    <Icon name="Mail" size={48} className="mx-auto mb-3 text-purple-600" />
+                    <Icon name="User" size={48} className="mx-auto mb-3 text-purple-600" />
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Welcome!</h3>
                     <p className="text-sm text-gray-600">
-                      Enter your email to start chatting with admin
+                      Enter your nickname to start chatting with admin
                     </p>
                   </div>
                   <Input
-                    type="email"
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
+                    type="text"
+                    value={nicknameInput}
+                    onChange={(e) => setNicknameInput(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                    placeholder="your@email.com"
+                    placeholder="Your nickname"
                     className="w-full"
+                    maxLength={20}
                   />
                   <Button
                     onClick={handleLogin}
