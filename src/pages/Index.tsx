@@ -57,10 +57,19 @@ const Index = () => {
 
   useEffect(() => {
     const storedCount = localStorage.getItem('visitorCount');
-    const currentCount = storedCount ? parseInt(storedCount) : 0;
-    const newCount = currentCount + 1;
-    localStorage.setItem('visitorCount', newCount.toString());
-    setVisitors(newCount);
+    const lastVisit = localStorage.getItem('lastVisit');
+    const now = Date.now();
+    
+    let currentCount = storedCount ? parseInt(storedCount) : 1500; // Начальное значение
+    
+    // Увеличиваем счетчик только если прошло больше 30 минут с последнего визита
+    if (!lastVisit || now - parseInt(lastVisit) > 30 * 60 * 1000) {
+      currentCount = currentCount + 1;
+      localStorage.setItem('visitorCount', currentCount.toString());
+      localStorage.setItem('lastVisit', now.toString());
+    }
+    
+    setVisitors(currentCount);
   }, []);
 
   const galleryImages = [
