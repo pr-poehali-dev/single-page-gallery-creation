@@ -580,10 +580,12 @@ const Index = () => {
                   <Icon name="User" className="text-white" size={24} />
                 </div>
                 <div>
-                  <div className="font-bold text-white">Admin</div>
+                  <div className="font-bold text-white">
+                    {isAuthorized ? userNickname : 'Admin'}
+                  </div>
                   <div className="text-xs text-white/70 flex items-center gap-1">
                     <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    Online
+                    {isAuthorized ? 'You' : 'Online'}
                   </div>
                 </div>
               </div>
