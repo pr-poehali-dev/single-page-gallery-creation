@@ -91,6 +91,14 @@ const Index = () => {
     { price: 60, videos: '30,000', popular: false },
   ];
 
+  const cryptoDonations = [
+    { donor: 'Anonymous', amount: '0.05 BTC', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
+    { donor: 'CryptoFan23', amount: '500 USDT', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
+    { donor: 'Whale_Investor', amount: '2.5 ETH', currency: 'Ethereum', icon: 'Gem', color: 'from-purple-500 to-indigo-600' },
+    { donor: 'BTC_Lover', amount: '0.1 BTC', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
+    { donor: 'Generous_User', amount: '1000 USDT', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
+  ];
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
@@ -175,6 +183,42 @@ const Index = () => {
                     {plan.videos}
                   </div>
                   <p className="text-white/70 text-sm">Videos</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <div 
+          data-animate="donations"
+          className={`max-w-7xl mx-auto mb-16 transition-all duration-700 ${
+            isVisible['donations'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-4">
+            Recent Crypto Donations
+          </h2>
+          <p className="text-xl text-white/80 text-center mb-12">
+            Thank you to our supporters! 💎
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {cryptoDonations.map((donation, index) => (
+              <Card
+                key={index}
+                className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 hover:scale-105 transition-all duration-300"
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`p-3 rounded-full bg-gradient-to-r ${donation.color}`}>
+                    <Icon name={donation.icon} className="text-white" size={24} />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-bold text-white text-lg">{donation.donor}</div>
+                    <div className="text-white/70 text-sm">{donation.currency}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-black text-white text-xl">{donation.amount}</div>
+                  </div>
                 </div>
               </Card>
             ))}
