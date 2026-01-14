@@ -164,38 +164,44 @@ const AdminPanel = () => {
     }
 
     setLoading(true);
+    let uploadedCount = 0;
 
     for (const file of filesToUpload) {
-      const reader = new FileReader();
-      await new Promise<void>((resolve) => {
-        reader.onloadend = async () => {
-          try {
-            await fetch(`${API_URL}?action=send`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                userId: selectedUser.id,
-                message: 'Photo',
-                imageUrl: reader.result as string,
-                isAdmin: true
-              })
-            });
-            resolve();
-          } catch (error) {
-            console.error('Failed to upload image:', error);
-            resolve();
-          }
-        };
-        reader.readAsDataURL(file);
-      });
+      try {
+        const base64 = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result as string);
+          reader.readAsDataURL(file);
+        });
+
+        const response = await fetch(`${API_URL}?action=send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: selectedUser.id,
+            message: 'Photo',
+            imageUrl: base64,
+            isAdmin: true
+          })
+        });
+
+        if (response.ok) {
+          uploadedCount++;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+      }
     }
 
+    await new Promise(resolve => setTimeout(resolve, 300));
     await loadMessages(selectedUser.id);
     setLoading(false);
 
     toast({
       title: 'Готово!',
-      description: `Загружено ${filesToUpload.length} фото`,
+      description: `Загружено ${uploadedCount} из ${filesToUpload.length} фото`,
     });
 
     if (fileInputRef.current) {
