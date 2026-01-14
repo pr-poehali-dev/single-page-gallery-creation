@@ -26,14 +26,24 @@ const Index = () => {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [visitors, setVisitors] = useState<number>(0);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      text: 'Hello! I\'m the admin. How can I help you today?',
-      sender: 'admin',
-      timestamp: new Date(),
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      const parsed = JSON.parse(savedMessages);
+      return parsed.map((msg: any) => ({
+        ...msg,
+        timestamp: new Date(msg.timestamp)
+      }));
     }
-  ]);
+    return [
+      {
+        id: 1,
+        text: 'Hello! I\'m the admin. How can I help you today?',
+        sender: 'admin',
+        timestamp: new Date(),
+      }
+    ];
+  });
   const [newMessage, setNewMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -190,7 +200,9 @@ const Index = () => {
         sender: 'user',
         timestamp: new Date(),
       };
-      setMessages([...messages, message]);
+      const updatedMessages = [...messages, message];
+      setMessages(updatedMessages);
+      localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
       setNewMessage('');
       setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     }
@@ -208,7 +220,9 @@ const Index = () => {
           timestamp: new Date(),
           image: reader.result as string,
         };
-        setMessages([...messages, message]);
+        const updatedMessages = [...messages, message];
+        setMessages(updatedMessages);
+        localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
         setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
       };
       reader.readAsDataURL(file);
