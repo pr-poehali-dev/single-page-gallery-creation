@@ -20,30 +20,19 @@ interface ChatMessage {
   image?: string;
 }
 
+const API_URL = 'https://functions.poehali.dev/c51dbb61-b1e5-4923-98ba-c9ddd569ba13';
+
 const Index = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [visitors, setVisitors] = useState<number>(0);
   const [chatOpen, setChatOpen] = useState<boolean>(false);
-  const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    const savedMessages = localStorage.getItem('chatMessages');
-    if (savedMessages) {
-      const parsed = JSON.parse(savedMessages);
-      return parsed.map((msg: any) => ({
-        ...msg,
-        timestamp: new Date(msg.timestamp)
-      }));
-    }
-    return [
-      {
-        id: 1,
-        text: 'Hello! I\'m the admin. How can I help you today?',
-        sender: 'admin',
-        timestamp: new Date(),
-      }
-    ];
-  });
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [userId, setUserId] = useState<number | null>(null);
+  const [emailInput, setEmailInput] = useState<string>('');
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -192,42 +181,107 @@ const Index = () => {
     });
   };
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const message: ChatMessage = {
-        id: messages.length + 1,
-        text: newMessage,
-        sender: 'user',
-        timestamp: new Date(),
-      };
-      const updatedMessages = [...messages, message];
-      setMessages(updatedMessages);
-      localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
-      setNewMessage('');
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+  const handleLogin = async () => {
+    if (!emailInput.trim() || !emailInput.includes('@')) {
+      toast({ title: 'Error', description: 'Please enter a valid email' });
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}?action=register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailInput.toLowerCase().trim() })
+      });
+      const data = await res.json();
+      
+      if (data.userId) {
+        setUserId(data.userId);
+        setUserEmail(data.email);
+        setIsAuthorized(true);
+        localStorage.setItem('chatUserId', data.userId.toString());
+        localStorage.setItem('chatUserEmail', data.email);
+        await loadMessages(data.userId);
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to connect. Please try again.' });
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const loadMessages = async (uid: number) => {
+    try {
+      const res = await fetch(`${API_URL}?action=messages&userId=${uid}`);
+      const data = await res.json();
+      if (data.messages) {
+        setMessages(data.messages.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        })));
+      }
+    } catch (error) {
+      console.error('Failed to load messages:', error);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!newMessage.trim() || !userId) return;
+
+    try {
+      await fetch(`${API_URL}?action=send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, message: newMessage })
+      });
+      setNewMessage('');
+      await loadMessages(userId);
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to send message' });
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
+    if (file && userId) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const message: ChatMessage = {
-          id: messages.length + 1,
-          text: 'Sent an image',
-          sender: 'user',
-          timestamp: new Date(),
-          image: reader.result as string,
-        };
-        const updatedMessages = [...messages, message];
-        setMessages(updatedMessages);
-        localStorage.setItem('chatMessages', JSON.stringify(updatedMessages));
-        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+      reader.onloadend = async () => {
+        try {
+          await fetch(`${API_URL}?action=send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId,
+              message: 'Sent an image',
+              imageUrl: reader.result as string
+            })
+          });
+          await loadMessages(userId);
+          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+        } catch (error) {
+          toast({ title: 'Error', description: 'Failed to upload image' });
+        }
       };
       reader.readAsDataURL(file);
     }
   };
+
+  useEffect(() => {
+    const savedUserId = localStorage.getItem('chatUserId');
+    const savedEmail = localStorage.getItem('chatUserEmail');
+    if (savedUserId && savedEmail) {
+      setUserId(parseInt(savedUserId));
+      setUserEmail(savedEmail);
+      setIsAuthorized(true);
+      loadMessages(parseInt(savedUserId));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthorized && userId) {
+      const interval = setInterval(() => loadMessages(userId), 3000);
+      return () => clearInterval(interval);
+    }
+  }, [isAuthorized, userId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500">
@@ -468,78 +522,108 @@ const Index = () => {
               </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              <div className="bg-purple-100 border-l-4 border-purple-600 p-3 rounded">
-                <div className="flex items-center gap-2 mb-1">
-                  <Icon name="Pin" size={14} className="text-purple-600" />
-                  <span className="font-semibold text-sm text-purple-900">Pinned Message</span>
-                </div>
-                <p className="text-sm text-purple-800">
-                  Welcome! Send your transaction ID after payment. We'll verify it within 5 minutes.
-                </p>
-              </div>
-
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[75%] rounded-2xl px-4 py-2 ${
-                      msg.sender === 'user'
-                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                        : 'bg-gray-200 text-gray-900'
-                    }`}
-                  >
-                    {msg.image && (
-                      <img
-                        src={msg.image}
-                        alt="Uploaded"
-                        className="rounded-lg mb-2 max-w-full"
-                      />
-                    )}
-                    <p className="text-sm">{msg.text}</p>
-                    <p className={`text-xs mt-1 ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
-                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            {!isAuthorized ? (
+              <div className="flex-1 flex items-center justify-center p-6">
+                <div className="w-full max-w-sm space-y-4">
+                  <div className="text-center mb-6">
+                    <Icon name="Mail" size={48} className="mx-auto mb-3 text-purple-600" />
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Welcome!</h3>
+                    <p className="text-sm text-gray-600">
+                      Enter your email to start chatting with admin
                     </p>
                   </div>
+                  <Input
+                    type="email"
+                    value={emailInput}
+                    onChange={(e) => setEmailInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                    placeholder="your@email.com"
+                    className="w-full"
+                  />
+                  <Button
+                    onClick={handleLogin}
+                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                  >
+                    Start Chat
+                  </Button>
                 </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex gap-2">
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageUpload}
-                  accept="image/*"
-                  className="hidden"
-                />
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  variant="outline"
-                  size="sm"
-                  className="px-3"
-                >
-                  <Icon name="Image" size={20} />
-                </Button>
-                <Input
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Type a message..."
-                  className="flex-1"
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                >
-                  <Icon name="Send" size={20} />
-                </Button>
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                  <div className="bg-purple-100 border-l-4 border-purple-600 p-3 rounded">
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon name="Pin" size={14} className="text-purple-600" />
+                      <span className="font-semibold text-sm text-purple-900">Pinned Message</span>
+                    </div>
+                    <p className="text-sm text-purple-800">
+                      Welcome! Send your transaction ID after payment. We'll verify it within 5 minutes.
+                    </p>
+                  </div>
+
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                          msg.sender === 'user'
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                            : 'bg-gray-200 text-gray-900'
+                        }`}
+                      >
+                        {msg.image && (
+                          <img
+                            src={msg.image}
+                            alt="Uploaded"
+                            className="rounded-lg mb-2 max-w-full"
+                          />
+                        )}
+                        <p className="text-sm">{msg.text}</p>
+                        <p className={`text-xs mt-1 ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
+                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                <div className="p-4 border-t border-gray-200">
+                  <div className="flex gap-2">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      variant="outline"
+                      size="sm"
+                      className="px-3"
+                    >
+                      <Icon name="Image" size={20} />
+                    </Button>
+                    <Input
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      placeholder="Type a message..."
+                      className="flex-1"
+                    />
+                    <Button
+                      onClick={handleSendMessage}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                    >
+                      <Icon name="Send" size={20} />
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
           </Card>
         )}
       </div>
