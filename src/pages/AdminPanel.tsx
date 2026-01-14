@@ -34,6 +34,7 @@ const AdminPanel = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const previousMessageCountRef = useRef<{ [userId: number]: number }>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Проверяем авторизацию
@@ -49,7 +50,12 @@ const AdminPanel = () => {
     // Запрашиваем разрешение на уведомления
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission();
-    }"}, {"old_string": "  return (\n    <div className=\"min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4\">\n      <div className=\"container mx-auto\">\n        <div className=\"flex items-center justify-between mb-8\">\n          <h1 className=\"text-4xl font-bold text-white\">Admin Panel</h1>", "new_string": "  const navigate = useNavigate();\n\n  const handleLogout = () => {\n    localStorage.removeItem('adminAuth');\n    navigate('/admin-login');\n  };\n\n  return (\n    <div className=\"min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4\">\n      <div className=\"container mx-auto\">\n        <div className=\"flex items-center justify-between mb-8\">\n          <h1 className=\"text-4xl font-bold text-white\">Admin Panel</h1>\n          <div className=\"flex items-center gap-4\">"}]
+    }
+
+    loadUsers();
+    const interval = setInterval(loadUsers, 5000);
+    return () => clearInterval(interval);
+  }, []);]
 
   useEffect(() => {
     if (selectedUser) {
@@ -140,6 +146,61 @@ const AdminPanel = () => {
       console.error('Failed to send message:', error);
     }
     setLoading(false);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || !selectedUser) return;
+
+    const maxFiles = 5;
+    const filesToUpload = Array.from(files).slice(0, maxFiles);
+
+    if (files.length > maxFiles) {
+      toast({
+        title: 'Предупреждение',
+        description: `Можно загрузить максимум ${maxFiles} фото`,
+        variant: 'destructive'
+      });
+    }
+
+    setLoading(true);
+
+    for (const file of filesToUpload) {
+      const reader = new FileReader();
+      await new Promise<void>((resolve) => {
+        reader.onloadend = async () => {
+          try {
+            await fetch(`${API_URL}?action=send`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId: selectedUser.id,
+                message: 'Photo',
+                imageUrl: reader.result as string,
+                isAdmin: true
+              })
+            });
+            resolve();
+          } catch (error) {
+            console.error('Failed to upload image:', error);
+            resolve();
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    await loadMessages(selectedUser.id);
+    setLoading(false);
+
+    toast({
+      title: 'Готово!',
+      description: `Загружено ${filesToUpload.length} фото`,
+    });
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleLogout = () => {
@@ -243,19 +304,42 @@ const AdminPanel = () => {
 
                 <div className="p-4 border-t border-white/20">
                   <div className="flex gap-2">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageUpload}
+                      accept="image/*"
+                      multiple
+                      max={5}
+                      className="hidden"
+                    />
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      variant="outline"
+                      size="sm"
+                      disabled={loading}
+                      className="px-3 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    >
+                      <Icon name="ImagePlus" size={20} />
+                    </Button>
                     <Input
                       value={newMessage}
                       onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && sendAdminMessage()}
+                      onKeyPress={(e) => e.key === 'Enter' && !loading && sendAdminMessage()}
                       placeholder="Type your reply..."
-                      className="flex-1 bg-white/10 border-white/20 text-white"
+                      disabled={loading}
+                      className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
                     />
                     <Button
                       onClick={sendAdminMessage}
                       disabled={loading}
                       className="bg-purple-500 hover:bg-purple-600"
                     >
-                      <Icon name="Send" size={20} />
+                      {loading ? (
+                        <Icon name="Loader2" size={20} className="animate-spin" />
+                      ) : (
+                        <Icon name="Send" size={20} />
+                      )}
                     </Button>
                   </div>
                 </div>
