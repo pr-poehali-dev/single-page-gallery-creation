@@ -37,6 +37,7 @@ const AdminPanel = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const loadingMessagesRef = useRef<boolean>(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const loadMessages = useCallback(async (userId: number) => {
     if (!userId || loadingMessagesRef.current) return;
@@ -47,6 +48,10 @@ const AdminPanel = () => {
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setMessages(data.messages || []);
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     } catch (error) {
       console.error('Failed to load messages:', error);
       setMessages([]);
@@ -144,8 +149,15 @@ const AdminPanel = () => {
       loadMessages(selectedUser.id);
       setUnreadCount(0);
       document.title = 'Admin Panel';
+      
+      // Auto-refresh messages every 3 seconds
+      const interval = setInterval(() => {
+        loadMessages(selectedUser.id);
+      }, 3000);
+      
+      return () => clearInterval(interval);
     }
-  }, [selectedUser]);
+  }, [selectedUser, loadMessages]);
 
   const sendAdminMessage = async () => {
     if (!newMessage.trim() || !selectedUser) return;
@@ -163,6 +175,7 @@ const AdminPanel = () => {
       });
       setNewMessage('');
       await loadMessages(selectedUser.id);
+      await loadUsers(); // Обновляем список пользователей
     } catch (error) {
       console.error('Failed to send message:', error);
     }
@@ -401,6 +414,7 @@ const AdminPanel = () => {
                       </div>
                     </div>
                   ))}
+                  <div ref={messagesEndRef} />
                 </div>
 
                 <div className="p-4 border-t border-white/20">

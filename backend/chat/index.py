@@ -170,11 +170,11 @@ def handler(event: dict, context) -> dict:
                         u.id, 
                         u.email, 
                         u.created_at,
-                        COUNT(m.id) as message_count,
+                        COUNT(CASE WHEN m.is_admin = false THEN 1 END) as message_count,
                         MAX(m.created_at) as last_message,
                         u.is_pinned
                     FROM chat_users u
-                    LEFT JOIN chat_messages m ON u.id = m.user_id AND m.is_admin = false
+                    LEFT JOIN chat_messages m ON u.id = m.user_id
                     GROUP BY u.id, u.email, u.created_at, u.is_pinned
                     ORDER BY u.is_pinned DESC, last_message DESC NULLS LAST
                 """)
