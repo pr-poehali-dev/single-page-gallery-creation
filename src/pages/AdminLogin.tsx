@@ -7,20 +7,21 @@ import Icon from '@/components/ui/icon';
 import { toast } from '@/hooks/use-toast';
 
 const AdminLogin = () => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // Простая защита паролем (в продакшене использовать настоящую авторизацию)
-    const adminPassword = 'admin2026'; // Измените на свой пароль
+    const adminUsername = 'Andreysfr777';
+    const adminPassword = '1q2q3q4q5q';
     
-    if (password === adminPassword) {
+    if (username === adminUsername && password === adminPassword) {
       localStorage.setItem('adminAuth', 'true');
       navigate('/admin');
     } else {
       toast({
         title: 'Ошибка',
-        description: 'Неверный пароль',
+        description: 'Неверный логин или пароль',
         variant: 'destructive'
       });
     }
@@ -34,10 +35,18 @@ const AdminLogin = () => {
             <Icon name="Shield" size={32} className="text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Admin Access</h1>
-          <p className="text-white/60">Enter password to continue</p>
+          <p className="text-white/60">Enter credentials to continue</p>
         </div>
 
         <div className="space-y-4">
+          <Input
+            type="text"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+            placeholder="Username"
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+          />
           <Input
             type="password"
             value={password}
