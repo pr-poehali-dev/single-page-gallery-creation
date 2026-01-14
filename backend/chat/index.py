@@ -113,7 +113,8 @@ def handler(event: dict, context) -> dict:
                     return {
                         'statusCode': 400,
                         'headers': cors_headers,
-                        'body': json.dumps({'error': 'User ID required'})
+                        'body': json.dumps({'error': 'User ID required'}),
+                        'isBase64Encoded': False
                     }
                 
                 cur.execute("DELETE FROM chat_messages WHERE user_id = %s", (user_id,))
