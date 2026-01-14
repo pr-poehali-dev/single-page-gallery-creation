@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
+import { toast } from '@/hooks/use-toast';
 
 const API_URL = 'https://functions.poehali.dev/c51dbb61-b1e5-4923-98ba-c9ddd569ba13';
 
@@ -23,21 +25,38 @@ interface Message {
 }
 
 const AdminPanel = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const previousMessageCountRef = useRef<{ [userId: number]: number }>({});
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    loadUsers();
-    const interval = setInterval(loadUsers, 5000); // Обновляем каждые 5 секунд
-    return () => clearInterval(interval);
-  }, []);
+    // Проверяем авторизацию
+    const isAuth = localStorage.getItem('adminAuth');
+    if (!isAuth) {
+      window.location.href = '/admin-login';
+      return;
+    }
+
+    // Создаём звук уведомления
+    audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWm98OScRxELTqPh8b9uJwU3jdXuyXUjBTGT3O+jcB8EM3+z7s18IwUymN3vmnMeBDN+seXHgCMF');
+    
+    // Запрашиваем разрешение на уведомления
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }"}, {"old_string": "  return (\n    <div className=\"min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4\">\n      <div className=\"container mx-auto\">\n        <div className=\"flex items-center justify-between mb-8\">\n          <h1 className=\"text-4xl font-bold text-white\">Admin Panel</h1>", "new_string": "  const navigate = useNavigate();\n\n  const handleLogout = () => {\n    localStorage.removeItem('adminAuth');\n    navigate('/admin-login');\n  };\n\n  return (\n    <div className=\"min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4\">\n      <div className=\"container mx-auto\">\n        <div className=\"flex items-center justify-between mb-8\">\n          <h1 className=\"text-4xl font-bold text-white\">Admin Panel</h1>\n          <div className=\"flex items-center gap-4\">"}]
 
   useEffect(() => {
     if (selectedUser) {
       loadMessages(selectedUser.id);
+      // Сбрасываем счётчик непрочитанных при открытии чата
+      setUnreadCount(0);
+      document.title = 'Admin Panel';
     }
   }, [selectedUser]);
 
@@ -45,7 +64,47 @@ const AdminPanel = () => {
     try {
       const res = await fetch(`${API_URL}?action=users`);
       const data = await res.json();
-      setUsers(data.users);
+      const newUsers = data.users;
+      
+      // Проверяем новые сообщения
+      let hasNewMessages = false;
+      let totalUnread = 0;
+      
+      newUsers.forEach((user: User) => {
+        const previousCount = previousMessageCountRef.current[user.id] || 0;
+        if (user.messageCount > previousCount && previousCount > 0) {
+          hasNewMessages = true;
+          totalUnread += (user.messageCount - previousCount);
+          
+          // Показываем уведомление в интерфейсе
+          toast({
+            title: '💬 Новое сообщение!',
+            description: `От ${user.email}`,
+            duration: 5000,
+          });
+          
+          // Browser notification для неактивной вкладки
+          if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+            new Notification('💬 Новое сообщение!', {
+              body: `От ${user.email}`,
+              icon: '/favicon.ico',
+              tag: `new-message-${user.id}`,
+              requireInteraction: false
+            });
+          }
+        }
+        previousMessageCountRef.current[user.id] = user.messageCount;
+      });
+      
+      if (hasNewMessages && audioRef.current) {
+        audioRef.current.play().catch(() => {});
+        setUnreadCount(prev => prev + totalUnread);
+        
+        // Обновляем заголовок страницы
+        document.title = `(${totalUnread}) Новые сообщения - Admin`;
+      }
+      
+      setUsers(newUsers);
     } catch (error) {
       console.error('Failed to load users:', error);
     }
@@ -83,10 +142,33 @@ const AdminPanel = () => {
     setLoading(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('adminAuth');
+    navigate('/admin-login');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="container mx-auto">
-        <h1 className="text-4xl font-bold text-white mb-8">Admin Panel</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold text-white">Admin Panel</h1>
+          <div className="flex items-center gap-4">
+            {unreadCount > 0 && (
+              <div className="bg-red-500 text-white px-4 py-2 rounded-full font-bold flex items-center gap-2 animate-pulse">
+                <Icon name="Bell" size={20} />
+                {unreadCount} новых
+              </div>
+            )}
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="text-white hover:bg-white/10"
+            >
+              <Icon name="LogOut" size={20} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-150px)]">
           {/* Users List */}
@@ -96,22 +178,30 @@ const AdminPanel = () => {
               Users ({users.length})
             </h2>
             <div className="space-y-2">
-              {users.map((user) => (
-                <button
-                  key={user.id}
-                  onClick={() => setSelectedUser(user)}
-                  className={`w-full p-3 rounded-lg text-left transition-all ${
-                    selectedUser?.id === user.id
-                      ? 'bg-purple-500 text-white'
-                      : 'bg-white/5 text-white/80 hover:bg-white/10'
-                  }`}
-                >
-                  <div className="font-semibold truncate">{user.email}</div>
-                  <div className="text-xs opacity-70">
-                    {user.messageCount} messages
-                  </div>
-                </button>
-              ))}
+              {users.map((user) => {
+                const prevCount = previousMessageCountRef.current[user.id] || 0;
+                const hasNewMessages = user.messageCount > prevCount && prevCount > 0;
+                
+                return (
+                  <button
+                    key={user.id}
+                    onClick={() => setSelectedUser(user)}
+                    className={`relative w-full p-3 rounded-lg text-left transition-all ${
+                      selectedUser?.id === user.id
+                        ? 'bg-purple-500 text-white'
+                        : 'bg-white/5 text-white/80 hover:bg-white/10'
+                    }`}
+                  >
+                    {hasNewMessages && (
+                      <div className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    )}
+                    <div className="font-semibold truncate">{user.email}</div>
+                    <div className="text-xs opacity-70">
+                      {user.messageCount} messages
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </Card>
 
