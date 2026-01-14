@@ -128,6 +128,17 @@ const AdminPanel = () => {
 
     audioRef.current = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGWm98OScRxELTqPh8b9uJwU3jdXuyXUjBTGT3O+jcB8EM3+z7s18IwUymN3vmnMeBDN+seXHgCMF');
     
+    // Регистрация Service Worker для PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(registration => {
+          console.log('Service Worker registered:', registration);
+        })
+        .catch(error => {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+    
     // Запрашиваем разрешение на уведомления
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission().then(permission => {
@@ -278,6 +289,36 @@ const AdminPanel = () => {
     setLoading(false);
   };
 
+  const downloadChat = () => {
+    if (!selectedUser || messages.length === 0) return;
+    
+    const chatText = messages.map(msg => {
+      const time = new Date(msg.timestamp).toLocaleString();
+      const sender = msg.sender === 'admin' ? 'Admin' : selectedUser.nickname;
+      return `[${time}] ${sender}: ${msg.text}`;
+    }).join('\n');
+    
+    const blob = new Blob([chatText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `chat_${selectedUser.nickname}_${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast({
+      title: '✅ Чат скачан',
+      description: `История чата с ${selectedUser.nickname} сохранена`,
+    });
+  };
+
+  const installPWA = () => {
+    toast({
+      title: '📲 Установка приложения',
+      description: 'Используйте меню браузера "Добавить на главный экран" для установки PWA',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
       <div className="container mx-auto">
@@ -290,6 +331,15 @@ const AdminPanel = () => {
                 {unreadCount} новых
               </div>
             )}
+            <Button
+              onClick={installPWA}
+              variant="ghost"
+              size="sm"
+              className="text-white hover:bg-white/10 hidden sm:flex"
+            >
+              <Icon name="Download" size={18} className="mr-2" />
+              Install App
+            </Button>
             <Button
               onClick={handleLogout}
               variant="ghost"
@@ -361,16 +411,28 @@ const AdminPanel = () => {
                       Joined: {new Date(selectedUser.joined).toLocaleDateString()}
                     </p>
                   </div>
-                  <Button
-                    onClick={() => clearChat(selectedUser.id)}
-                    variant="ghost"
-                    size="sm"
-                    disabled={loading}
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
-                  >
-                    <Icon name="Trash2" size={18} className="mr-1" />
-                    Очистить
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={downloadChat}
+                      variant="ghost"
+                      size="sm"
+                      disabled={loading || messages.length === 0}
+                      className="text-blue-400 hover:text-blue-300 hover:bg-blue-500/10"
+                    >
+                      <Icon name="Download" size={18} className="mr-1" />
+                      Download Chat
+                    </Button>
+                    <Button
+                      onClick={() => clearChat(selectedUser.id)}
+                      variant="ghost"
+                      size="sm"
+                      disabled={loading}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
+                    >
+                      <Icon name="Trash2" size={18} className="mr-1" />
+                      Очистить
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3">
