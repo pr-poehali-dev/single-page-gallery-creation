@@ -193,6 +193,11 @@ const Index = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailInput.toLowerCase().trim() })
       });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      
       const data = await res.json();
       
       if (data.userId) {
@@ -202,9 +207,17 @@ const Index = () => {
         localStorage.setItem('chatUserId', data.userId.toString());
         localStorage.setItem('chatUserEmail', data.email);
         await loadMessages(data.userId);
+        toast({ title: '✅ Connected', description: 'Chat is ready!' });
+      } else if (data.error) {
+        toast({ title: 'Error', description: data.error, variant: 'destructive' });
       }
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to connect. Please try again.' });
+      console.error('Login error:', error);
+      toast({ 
+        title: 'Connection Error', 
+        description: 'Could not connect to chat server. Please try again later.',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -274,10 +287,17 @@ const Index = () => {
     const savedUserId = localStorage.getItem('chatUserId');
     const savedEmail = localStorage.getItem('chatUserEmail');
     if (savedUserId && savedEmail) {
-      setUserId(parseInt(savedUserId));
-      setUserEmail(savedEmail);
-      setIsAuthorized(true);
-      loadMessages(parseInt(savedUserId));
+      const uid = parseInt(savedUserId);
+      if (!isNaN(uid) && uid > 0) {
+        setUserId(uid);
+        setUserEmail(savedEmail);
+        setIsAuthorized(true);
+        loadMessages(uid);
+      } else {
+        // Очищаем невалидные данные
+        localStorage.removeItem('chatUserId');
+        localStorage.removeItem('chatUserEmail');
+      }
     }
   }, []);
 

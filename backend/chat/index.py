@@ -19,9 +19,10 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 200, 'headers': cors_headers, 'body': ''}
     
     try:
-        # Подключение к БД
+        # Подключение к БД с указанием схемы
         db_url = os.environ['DATABASE_URL']
-        conn = psycopg2.connect(db_url)
+        schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
+        conn = psycopg2.connect(db_url, options=f'-c search_path={schema}')
         cur = conn.cursor()
         
         query_params = event.get('queryStringParameters') or {}
