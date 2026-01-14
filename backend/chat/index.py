@@ -56,9 +56,9 @@ def handler(event: dict, context) -> dict:
                 user = cur.fetchone()
                 
                 if not user:
-                    # Создаём нового пользователя
+                    # Создаём нового пользователя (используем ON CONFLICT для избежания ошибок)
                     cur.execute(
-                        "INSERT INTO chat_users (email) VALUES (%s) RETURNING id",
+                        "INSERT INTO chat_users (email) VALUES (%s) ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email RETURNING id",
                         (email,)
                     )
                     user_id = cur.fetchone()[0]
