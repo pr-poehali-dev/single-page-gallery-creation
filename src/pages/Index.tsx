@@ -94,24 +94,31 @@ const Index = () => {
 
   const plans = [
     {
-      name: 'Basic',
-      storage: '100 GB',
-      price: '$2',
-      features: ['500 GB Storage', 'Basic Support', '10 GB Transfer'],
+      name: 'Starter',
+      storage: '1,000 Videos',
+      price: '$12',
+      features: ['1,000 Videos', 'Basic Support', 'Fast Delivery'],
       popular: false
     },
     {
-      name: 'Pro',
-      storage: '500 GB',
-      price: '$5',
-      features: ['500 GB Storage', 'Priority Support', '100 GB Transfer', 'Advanced Features'],
+      name: 'Growth',
+      storage: '3,000 Videos',
+      price: '$20',
+      features: ['3,000 Videos', 'Priority Support', 'Express Delivery', 'HD Quality'],
       popular: true
     },
     {
-      name: 'Enterprise',
-      storage: '2 TB',
-      price: '$10',
-      features: ['2 TB Storage', '24/7 Support', 'Unlimited Transfer', 'All Features', 'Custom Domain'],
+      name: 'Pro',
+      storage: '5,500 Videos',
+      price: '$30',
+      features: ['5,500 Videos', '24/7 Support', 'Instant Delivery', 'Premium Quality'],
+      popular: false
+    },
+    {
+      name: 'Ultimate',
+      storage: '30,000 Videos',
+      price: '$60',
+      features: ['30,000 Videos', 'VIP Support', 'Priority Processing', 'Best Quality', 'Bonus Content'],
       popular: false
     },
   ];
@@ -187,7 +194,7 @@ const Index = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {plans.map((plan, index) => (
               <Card
                 key={index}
