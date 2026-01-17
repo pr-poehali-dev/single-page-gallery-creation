@@ -303,9 +303,22 @@ const Index = () => {
                       <Icon name="Copy" size={18} />
                     </Button>
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-3">
-                    💡 After payment, contact admin with your transaction ID
-                  </p>
+                  <div className="mt-4 bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
+                    <h4 className="font-bold text-sm sm:text-base mb-2 flex items-center gap-2">
+                      <Icon name="MessageCircle" size={18} />
+                      After Payment
+                    </h4>
+                    <p className="text-xs sm:text-sm text-gray-700 mb-3">
+                      Send your payment receipt to Telegram for verification and instant delivery
+                    </p>
+                    <Button
+                      onClick={() => window.open('https://t.me/reikas_boss', '_blank')}
+                      className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
+                    >
+                      <Icon name="Send" className="mr-2" size={16} />
+                      Contact Admin on Telegram
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
