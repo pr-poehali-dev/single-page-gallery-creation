@@ -80,9 +80,6 @@ const Index = () => {
     'https://cdn.poehali.dev/files/Screenshot-47.jpg',
     'https://cdn.poehali.dev/files/Screenshot_5.png',
     'https://cdn.poehali.dev/files/Screenshot_4.png',
-    'https://i.postimg.cc/cCkMKD8G/Screenshot-41.jpg',
-    'https://i.postimg.cc/FFTxnKCg/Screenshot-44.jpg',
-    'https://i.postimg.cc/BZmCwv7x/Screenshot-46.jpg',
   ];
 
   const paymentMethods = [
