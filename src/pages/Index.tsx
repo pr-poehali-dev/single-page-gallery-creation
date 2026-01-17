@@ -239,74 +239,72 @@ const Index = () => {
           </div>
         </div>
 
-        {selectedPlan !== null && (
-          <div 
-            data-animate="payment"
-            className={`max-w-5xl mx-auto mb-16 transition-all duration-700 ${
-              isVisible['payment'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-            }`}
-          >
-            <Card className="bg-white/95 backdrop-blur-lg border-2 border-white/40 p-4 sm:p-8 shadow-2xl">
-              <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Choose Payment Method</h2>
-              <p className="text-sm sm:text-lg text-gray-600 mb-6 sm:mb-8">
-                Selected Plan: <span className="font-bold text-purple-600">{plans[selectedPlan].name}</span> - {plans[selectedPlan].price}/month
-              </p>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                {paymentMethods.map((method) => (
-                  <button
-                    key={method.name}
-                    onClick={() => setSelectedPayment(method.name)}
-                    className={`p-3 sm:p-6 rounded-2xl border-2 transition-all duration-300 ${
-                      selectedPayment === method.name
-                        ? 'border-purple-600 bg-purple-50 scale-105 shadow-lg'
-                        : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
-                    }`}
-                  >
-                    <div className={`w-10 h-10 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 rounded-full bg-gradient-to-br ${method.color} flex items-center justify-center`}>
-                      <Icon name={method.icon as any} className="text-white" size={24} />
-                    </div>
-                    <div className="font-bold text-xs sm:text-base text-gray-900">{method.name}</div>
-                  </button>
-                ))}
-              </div>
-
-              {selectedPayment && (
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-6 rounded-2xl border-2 border-purple-200">
-                  {paymentMethods.find(m => m.name === selectedPayment)?.note && (
-                    <div className="bg-yellow-100 border-l-4 border-yellow-500 p-3 sm:p-4 mb-4 rounded">
-                      <p className="text-xs sm:text-sm text-yellow-800 font-semibold">
-                        ⚠️ {paymentMethods.find(m => m.name === selectedPayment)?.note}
-                      </p>
-                    </div>
-                  )}
-                  <h3 className="font-bold text-base sm:text-xl text-gray-900 mb-3 sm:mb-4">
-                    {paymentMethods.find(m => m.name === selectedPayment)?.label}
-                  </h3>
-                  <div className="flex gap-2 sm:gap-3">
-                    <input
-                      type="text"
-                      value={paymentMethods.find(m => m.name === selectedPayment)?.address}
-                      readOnly
-                      className="flex-1 p-2 sm:p-4 border-2 border-purple-300 rounded-xl bg-white font-mono text-xs sm:text-base"
-                    />
-                    <Button
-                      onClick={() => copyToClipboard(
-                        paymentMethods.find(m => m.name === selectedPayment)?.address || '',
-                        paymentMethods.find(m => m.name === selectedPayment)?.label || ''
-                      )}
-                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-3 sm:px-6"
-                    >
-                      <Icon name="Copy" size={20} />
-                    </Button>
+        <div 
+          data-animate="payment"
+          className={`max-w-5xl mx-auto mb-16 transition-all duration-700 ${
+            isVisible['payment'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          <Card className="bg-white/95 backdrop-blur-lg border-2 border-white/40 p-4 sm:p-8 shadow-2xl">
+            <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Choose Payment Method</h2>
+            <p className="text-sm sm:text-lg text-gray-600 mb-6 sm:mb-8">
+              Select your preferred payment method
+            </p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+              {paymentMethods.map((method) => (
+                <button
+                  key={method.name}
+                  onClick={() => setSelectedPayment(method.name)}
+                  className={`p-3 sm:p-6 rounded-2xl border-2 transition-all duration-300 ${
+                    selectedPayment === method.name
+                      ? 'border-purple-600 bg-purple-50 scale-105 shadow-lg'
+                      : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
+                  }`}
+                >
+                  <div className={`w-10 h-10 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 rounded-full bg-gradient-to-br ${method.color} flex items-center justify-center`}>
+                    <Icon name={method.icon as any} className="text-white" size={24} />
                   </div>
-                  <p className="text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
-                    💡 After payment, contact admin with your transaction ID
-                  </p>
+                  <div className="font-bold text-xs sm:text-base text-gray-900">{method.name}</div>
+                </button>
+              ))}
+            </div>
+
+            {selectedPayment && (
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-6 rounded-2xl border-2 border-purple-200">
+                {paymentMethods.find(m => m.name === selectedPayment)?.note && (
+                  <div className="bg-yellow-100 border-l-4 border-yellow-500 p-3 sm:p-4 mb-4 rounded">
+                    <p className="text-xs sm:text-sm text-yellow-800 font-semibold">
+                      ⚠️ {paymentMethods.find(m => m.name === selectedPayment)?.note}
+                    </p>
+                  </div>
+                )}
+                <h3 className="font-bold text-base sm:text-xl text-gray-900 mb-3 sm:mb-4">
+                  {paymentMethods.find(m => m.name === selectedPayment)?.label}
+                </h3>
+                <div className="flex gap-2 sm:gap-3">
+                  <input
+                    type="text"
+                    value={paymentMethods.find(m => m.name === selectedPayment)?.address}
+                    readOnly
+                    className="flex-1 p-2 sm:p-4 border-2 border-purple-300 rounded-xl bg-white font-mono text-xs sm:text-base"
+                  />
+                  <Button
+                    onClick={() => copyToClipboard(
+                      paymentMethods.find(m => m.name === selectedPayment)?.address || '',
+                      paymentMethods.find(m => m.name === selectedPayment)?.label || ''
+                    )}
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-3 sm:px-6"
+                  >
+                    <Icon name="Copy" size={20} />
+                  </Button>
                 </div>
-              )}
-            </Card>
-          </div>
-        )}
+                <p className="text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
+                  💡 After payment, contact admin with your transaction ID
+                </p>
+              </div>
+            )}
+          </Card>
+        </div>
 
         <div 
           data-animate="reviews"
