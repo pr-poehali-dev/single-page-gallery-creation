@@ -312,7 +312,7 @@ const Index = () => {
                       Send your payment receipt to Telegram for verification and instant delivery
                     </p>
                     <Button
-                      onClick={() => window.open('https://t.me/reikas_boss', '_blank')}
+                      onClick={() => window.open('https://t.me/tokare2', '_blank')}
                       className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
                     >
                       <Icon name="Send" className="mr-2" size={16} />
