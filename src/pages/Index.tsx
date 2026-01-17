@@ -96,21 +96,21 @@ const Index = () => {
     {
       name: 'Basic',
       storage: '100 GB',
-      price: '$5',
+      price: '$2',
       features: ['500 GB Storage', 'Basic Support', '10 GB Transfer'],
       popular: false
     },
     {
       name: 'Pro',
       storage: '500 GB',
-      price: '$15',
+      price: '$5',
       features: ['500 GB Storage', 'Priority Support', '100 GB Transfer', 'Advanced Features'],
       popular: true
     },
     {
       name: 'Enterprise',
       storage: '2 TB',
-      price: '$45',
+      price: '$10',
       features: ['2 TB Storage', '24/7 Support', 'Unlimited Transfer', 'All Features', 'Custom Domain'],
       popular: false
     },
