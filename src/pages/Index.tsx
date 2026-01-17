@@ -234,7 +234,7 @@ const Index = () => {
                         : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
                     } text-white shadow-lg hover:shadow-xl transition-all duration-300`}
                   >
-                    Choose Plan
+                    Buy Plan
                   </Button>
                 </div>
               </Card>
