@@ -67,14 +67,21 @@ const Index = () => {
       color: 'from-blue-500 to-blue-600',
       address: 'zoid.ketevan@gmail.com',
       label: 'PayPal Email',
-      note: 'Use family and friend'
+      note: 'Use family and friends'
     },
     { 
       name: 'BTC', 
       icon: 'Bitcoin', 
       color: 'from-orange-500 to-yellow-500',
-      address: 'bc1qz6fgwwv56r7evq3dfylhdqpn27lj4dcs5gdfk3',
+      address: '1LHwjpMPtuhzNjUp6nXMXaFmu5EGinvWNY',
       label: 'BTC Address'
+    },
+    { 
+      name: 'USDT', 
+      icon: 'DollarSign', 
+      color: 'from-green-500 to-emerald-600',
+      address: 'TXHWYwxR2Exj9MCn1wCLTfhi8sMvKUN1bj',
+      label: 'USDT Address (TRC20)'
     },
     { 
       name: 'ETH', 
@@ -82,13 +89,6 @@ const Index = () => {
       color: 'from-purple-500 to-indigo-500',
       address: '0xB7f25E58E0C86eC79eCeEcd23B1C5EC9bf1eED09',
       label: 'ETH Address'
-    },
-    { 
-      name: 'LTC', 
-      icon: 'Coins', 
-      color: 'from-gray-400 to-gray-600',
-      address: 'ltc1qws5rgzs7m4m6u30ww3a36edr9s6cw6c3h0wdex',
-      label: 'LTC Address'
     },
   ];
 
