@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
@@ -9,33 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
-
-interface ChatMessage {
-  id: number;
-  text: string;
-  sender: 'user' | 'admin';
-  timestamp: Date;
-  image?: string;
-}
-
-const API_URL = 'https://functions.poehali.dev/c51dbb61-b1e5-4923-98ba-c9ddd569ba13';
 
 const Index = () => {
   const [isVisible, setIsVisible] = useState<{ [key: string]: boolean }>({});
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [visitors, setVisitors] = useState<number>(0);
-  const [chatOpen, setChatOpen] = useState<boolean>(false);
-  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
-  const [userNickname, setUserNickname] = useState<string>('');
-  const [userId, setUserId] = useState<number | null>(null);
-  const [nicknameInput, setNicknameInput] = useState<string>('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [newMessage, setNewMessage] = useState<string>('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,9 +38,8 @@ const Index = () => {
     const lastVisit = localStorage.getItem('lastVisit');
     const now = Date.now();
     
-    let currentCount = storedCount ? parseInt(storedCount) : 1500; // Начальное значение
+    let currentCount = storedCount ? parseInt(storedCount) : 1500;
     
-    // Увеличиваем счетчик только если прошло больше 30 минут с последнего визита
     if (!lastVisit || now - parseInt(lastVisit) > 30 * 60 * 1000) {
       currentCount = currentCount + 1;
       localStorage.setItem('visitorCount', currentCount.toString());
@@ -95,285 +73,62 @@ const Index = () => {
       name: 'BTC', 
       icon: 'Bitcoin', 
       color: 'from-orange-500 to-yellow-500',
-      address: '1LHwjpMPtuhzNjUp6nXMXaFmu5EGinvWNY',
-      label: 'Bitcoin Address'
+      address: 'bc1qz6fgwwv56r7evq3dfylhdqpn27lj4dcs5gdfk3',
+      label: 'BTC Address'
     },
     { 
-      name: 'USDT', 
-      icon: 'DollarSign', 
-      color: 'from-green-500 to-green-600',
-      address: 'TXHWYwxR2Exj9MCn1wCLTfhi8sMvKUN1bj',
-      label: 'USDT Address (TRC20)'
-    },
-    { 
-      name: 'Ethereum', 
+      name: 'ETH', 
       icon: 'Gem', 
-      color: 'from-purple-500 to-indigo-600',
-      address: '0xYour...EthereumAddress',
-      label: 'Ethereum Address'
-    }
+      color: 'from-purple-500 to-indigo-500',
+      address: '0xB7f25E58E0C86eC79eCeEcd23B1C5EC9bf1eED09',
+      label: 'ETH Address'
+    },
+    { 
+      name: 'LTC', 
+      icon: 'Coins', 
+      color: 'from-gray-400 to-gray-600',
+      address: 'ltc1qws5rgzs7m4m6u30ww3a36edr9s6cw6c3h0wdex',
+      label: 'LTC Address'
+    },
   ];
 
-  const pricingPlans = [
-    { price: 12, videos: '1,000', popular: false },
-    { price: 20, videos: '3,000', popular: true },
-    { price: 30, videos: '5,500', popular: false },
-    { price: 60, videos: '30,000', popular: false },
-  ];
-
-  const cryptoDonations = [
-    { donor: 'Anonymous', amount: '$10', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
-    { donor: 'CryptoFan23', amount: '$20', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
-    { donor: 'Whale_Investor', amount: '$30', currency: 'Ethereum', icon: 'Gem', color: 'from-purple-500 to-indigo-600' },
-    { donor: 'BTC_Lover', amount: '$60', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
-    { donor: 'Generous_User', amount: '$20', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
-    { donor: 'EthereumFan', amount: '$30', currency: 'Ethereum', icon: 'Gem', color: 'from-purple-500 to-indigo-600' },
-    { donor: 'Supporter_101', amount: '$10', currency: 'Bitcoin', icon: 'Bitcoin', color: 'from-orange-500 to-yellow-500' },
-    { donor: 'BigDonor', amount: '$60', currency: 'USDT', icon: 'DollarSign', color: 'from-green-500 to-green-600' },
+  const plans = [
+    {
+      name: 'Basic',
+      storage: '100 GB',
+      price: '$5',
+      features: ['500 GB Storage', 'Basic Support', '10 GB Transfer'],
+      popular: false
+    },
+    {
+      name: 'Pro',
+      storage: '500 GB',
+      price: '$15',
+      features: ['500 GB Storage', 'Priority Support', '100 GB Transfer', 'Advanced Features'],
+      popular: true
+    },
+    {
+      name: 'Enterprise',
+      storage: '2 TB',
+      price: '$45',
+      features: ['2 TB Storage', '24/7 Support', 'Unlimited Transfer', 'All Features', 'Custom Domain'],
+      popular: false
+    },
   ];
 
   const reviews = [
-    { 
-      name: 'John D.', 
-      plan: '$20 Plan', 
-      rating: 5, 
-      text: 'Everything received! Thank you so much, excellent quality and fast delivery!',
-      date: '2 days ago'
-    },
-    { 
-      name: 'Sarah M.', 
-      plan: '$60 Plan', 
-      rating: 5, 
-      text: 'Amazing collection! Got all 30,000 videos as promised. Best purchase ever!',
-      date: '5 days ago'
-    },
-    { 
-      name: 'Mike R.', 
-      plan: '$12 Plan', 
-      rating: 5, 
-      text: 'Great service! Received everything within minutes. Highly recommend!',
-      date: '1 week ago'
-    },
-    { 
-      name: 'Emma L.', 
-      plan: '$30 Plan', 
-      rating: 5, 
-      text: 'Perfect! All files working perfectly. Admin was very helpful. Thanks!',
-      date: '1 week ago'
-    },
-    { 
-      name: 'Alex K.', 
-      plan: '$20 Plan', 
-      rating: 5, 
-      text: 'Received all content quickly. Good quality, would buy again. Thank you!',
-      date: '2 weeks ago'
-    },
+    { name: 'Sarah M.', plan: 'Pro Plan', rating: 5, text: 'Amazing service! Fast and reliable. Worth every penny!', date: '2 days ago' },
+    { name: 'John D.', plan: 'Enterprise', rating: 5, text: 'Best cloud storage I have ever used. Customer support is top-notch.', date: '1 week ago' },
+    { name: 'Emily R.', plan: 'Basic Plan', rating: 4, text: 'Great value for money. Simple and easy to use interface.', date: '3 days ago' },
+    { name: 'Michael B.', plan: 'Pro Plan', rating: 5, text: 'Switched from competitors and never looked back. Highly recommended!', date: '5 days ago' },
+    { name: 'Lisa K.', plan: 'Enterprise', rating: 5, text: 'Perfect for my business needs. Secure and professional service.', date: '1 day ago' },
+    { name: 'David W.', plan: 'Pro Plan', rating: 5, text: 'Outstanding performance and reliability. Customer service is excellent!', date: '4 days ago' },
   ];
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast({
-      title: "Copied!",
-      description: "Address copied to clipboard",
-    });
+    alert(`${label} copied to clipboard!`);
   };
-
-  const handleLogin = async () => {
-    if (!nicknameInput.trim() || nicknameInput.trim().length < 2) {
-      toast({ title: 'Error', description: 'Please enter a nickname (min 2 characters)' });
-      return;
-    }
-
-    try {
-      const nickname = nicknameInput.trim();
-      const res = await fetch(`${API_URL}?action=register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'cors',
-        body: JSON.stringify({ email: `${nickname}@guest.local` })
-      });
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Login failed:', res.status, errorText);
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const data = await res.json();
-      
-      if (data.userId) {
-        setUserId(data.userId);
-        setUserNickname(nickname);
-        setIsAuthorized(true);
-        localStorage.setItem('chatUserId', data.userId.toString());
-        localStorage.setItem('chatUserNickname', nickname);
-        await loadMessages(data.userId);
-        toast({ title: '✅ Connected', description: 'Chat is ready!' });
-      } else if (data.error) {
-        toast({ title: 'Error', description: data.error, variant: 'destructive' });
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      toast({ 
-        title: 'Connection Error', 
-        description: 'Could not connect to chat server. Please try again later.',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const loadMessages = async (uid: number) => {
-    if (!uid) return;
-    try {
-      const res = await fetch(`${API_URL}?action=messages&userId=${uid}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'cors'
-      });
-      if (!res.ok) {
-        console.error('Failed to fetch messages:', res.status, await res.text());
-        return;
-      }
-      const data = await res.json();
-      if (data.messages) {
-        setMessages(data.messages.map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        })));
-      }
-    } catch (error) {
-      console.error('Failed to load messages:', error);
-    }
-  };
-
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || !userId) return;
-
-    try {
-      const res = await fetch(`${API_URL}?action=send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        mode: 'cors',
-        body: JSON.stringify({ userId, message: newMessage })
-      });
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error('Send failed:', res.status, errorText);
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      
-      const data = await res.json();
-      
-      if (data.error) {
-        toast({ title: 'Error', description: data.error, variant: 'destructive' });
-        return;
-      }
-      
-      setNewMessage('');
-      await loadMessages(userId);
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-    } catch (error) {
-      console.error('Send message error:', error);
-      toast({ 
-        title: 'Send Error', 
-        description: 'Could not send message. Please try again.',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && userId) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        try {
-          const res = await fetch(`${API_URL}?action=send`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            mode: 'cors',
-            body: JSON.stringify({
-              userId,
-              message: 'Sent an image',
-              imageUrl: reader.result as string
-            })
-          });
-          
-          if (!res.ok) {
-            const errorText = await res.text();
-            console.error('Image upload failed:', res.status, errorText);
-            throw new Error(`HTTP error! status: ${res.status}`);
-          }
-          
-          const data = await res.json();
-          
-          if (data.error) {
-            toast({ title: 'Error', description: data.error, variant: 'destructive' });
-            return;
-          }
-          
-          await loadMessages(userId);
-          setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
-        } catch (error) {
-          console.error('Image upload error:', error);
-          toast({ 
-            title: 'Upload Error', 
-            description: 'Failed to upload image. Please try again.',
-            variant: 'destructive'
-          });
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  useEffect(() => {
-    const savedUserId = localStorage.getItem('chatUserId');
-    const savedNickname = localStorage.getItem('chatUserNickname');
-    if (savedUserId && savedNickname) {
-      const uid = parseInt(savedUserId);
-      if (!isNaN(uid) && uid > 0) {
-        // Проверяем, существует ли пользователь
-        fetch(`${API_URL}?action=messages&userId=${uid}`, {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-          mode: 'cors'
-        })
-          .then(res => {
-            if (res.ok) {
-              setUserId(uid);
-              setUserNickname(savedNickname);
-              setIsAuthorized(true);
-              return loadMessages(uid);
-            } else {
-              // Пользователь не найден, очищаем localStorage
-              localStorage.removeItem('chatUserId');
-              localStorage.removeItem('chatUserNickname');
-            }
-          })
-          .catch(() => {
-            // Ошибка сети, очищаем localStorage
-            localStorage.removeItem('chatUserId');
-            localStorage.removeItem('chatUserNickname');
-          });
-      } else {
-        localStorage.removeItem('chatUserId');
-        localStorage.removeItem('chatUserNickname');
-      }
-    }
-   
-  }, []);
-
-  useEffect(() => {
-    if (isAuthorized && userId && chatOpen) {
-      loadMessages(userId);
-      const interval = setInterval(() => loadMessages(userId), 5000);
-      return () => clearInterval(interval);
-    }
-  }, [isAuthorized, userId, chatOpen]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500">
@@ -424,79 +179,53 @@ const Index = () => {
             Select the perfect package for your needs
           </p>
           <div className="flex justify-center mb-8 md:mb-12">
-            <Button
-              onClick={() => document.querySelector('[data-animate="pricing"]')?.scrollIntoView({ behavior: 'smooth' })}
-              size="lg"
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-8 py-6 text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-            >
-              <Icon name="ShoppingCart" className="mr-2 h-6 w-6" />
-              Open Buy Menu
-            </Button>
+            <div className="bg-white/20 backdrop-blur-lg rounded-full px-4 sm:px-6 py-2 sm:py-3 border border-white/30 flex items-center gap-2">
+              <Icon name="Users" className="text-white" size={18} />
+              <span className="text-white font-bold text-sm sm:text-base">
+                {visitors.toLocaleString()} happy customers
+              </span>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            {pricingPlans.map((plan, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
+            {plans.map((plan, index) => (
               <Card
                 key={index}
-                className={`relative p-4 sm:p-8 bg-white/10 backdrop-blur-lg border-2 hover:scale-105 transition-all duration-300 cursor-pointer ${
-                  plan.popular ? 'border-yellow-400 shadow-2xl shadow-yellow-500/50' : 'border-white/20'
-                } ${
-                  selectedPlan === index ? 'ring-4 ring-white/50' : ''
+                className={`relative overflow-hidden transition-all duration-300 hover:scale-105 ${
+                  plan.popular 
+                    ? 'bg-gradient-to-br from-white via-purple-50 to-pink-50 border-4 border-yellow-400 shadow-2xl' 
+                    : 'bg-white/95 backdrop-blur-lg border border-white/40'
                 }`}
-                onClick={() => setSelectedPlan(index)}
               >
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-4 py-1 rounded-full text-sm font-bold">
-                    POPULAR
+                  <div className="absolute top-0 right-0 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-3 sm:px-4 py-1 text-xs sm:text-sm font-bold rounded-bl-xl">
+                    ⭐ MOST POPULAR
                   </div>
                 )}
-                <div className="text-center">
-                  <div className="mb-3 sm:mb-4">
-                    <Icon name="Video" className="text-white mx-auto" size={32} />
+                <div className="p-4 sm:p-8">
+                  <h3 className="text-2xl sm:text-3xl font-black mb-2 text-gray-900">{plan.name}</h3>
+                  <div className="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-4 sm:mb-6">
+                    {plan.price}
+                    <span className="text-base sm:text-xl text-gray-600">/month</span>
                   </div>
-                  <div className="text-3xl sm:text-5xl font-black text-white mb-2">
-                    ${plan.price}
-                  </div>
-                  <div className="text-xl sm:text-3xl font-bold text-white/90 mb-3 sm:mb-6">
-                    {plan.videos}
-                  </div>
-                  <p className="text-white/70 text-xs sm:text-sm">Videos</p>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        <div 
-          data-animate="donations"
-          className={`max-w-7xl mx-auto mb-16 transition-all duration-700 ${
-            isVisible['donations'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-          }`}
-        >
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-3 md:mb-4">
-            Recent Crypto Donations
-          </h2>
-          <p className="text-base sm:text-xl text-white/80 text-center mb-8 md:mb-12">
-            Thank you to our supporters! 💎
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            {cryptoDonations.map((donation, index) => (
-              <Card
-                key={index}
-                className="p-6 bg-white/10 backdrop-blur-lg border border-white/20 hover:scale-105 transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-full bg-gradient-to-r ${donation.color}`}>
-                    <Icon name={donation.icon} className="text-white" size={24} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-bold text-white text-lg">{donation.donor}</div>
-                    <div className="text-white/70 text-sm">{donation.currency}</div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-black text-white text-xl">{donation.amount}</div>
-                  </div>
+                  <ul className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+                    {plan.features.map((feature, i) => (
+                      <li key={i} className="flex items-center gap-2 text-sm sm:text-base text-gray-700">
+                        <Icon name="Check" className="text-green-500 shrink-0" size={20} />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    onClick={() => setSelectedPlan(index)}
+                    className={`w-full text-sm sm:text-lg font-bold py-4 sm:py-6 ${
+                      plan.popular
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                        : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'
+                    } text-white shadow-lg hover:shadow-xl transition-all duration-300`}
+                  >
+                    Get Started
+                  </Button>
                 </div>
               </Card>
             ))}
@@ -506,44 +235,69 @@ const Index = () => {
         {selectedPlan !== null && (
           <div 
             data-animate="payment"
-            className={`max-w-4xl mx-auto transition-all duration-700 ${
+            className={`max-w-5xl mx-auto mb-16 transition-all duration-700 ${
               isVisible['payment'] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
             }`}
           >
-            <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-6 sm:p-8 md:p-12 border border-white/20 shadow-2xl">
-              <div className="text-center mb-6 sm:mb-8">
-                <p className="text-white/70 text-sm sm:text-lg mb-2">Selected Plan:</p>
-                <div className="text-2xl sm:text-4xl font-black text-white">
-                  ${pricingPlans[selectedPlan].price} - {pricingPlans[selectedPlan].videos} Videos
-                </div>
-              </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3 sm:mb-4">
-                Choose Payment Method
-              </h2>
-              <p className="text-sm sm:text-lg text-white/80 text-center mb-6 sm:mb-10">
-                Select your preferred way to pay
+            <Card className="bg-white/95 backdrop-blur-lg border-2 border-white/40 p-4 sm:p-8 shadow-2xl">
+              <h2 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Choose Payment Method</h2>
+              <p className="text-sm sm:text-lg text-gray-600 mb-6 sm:mb-8">
+                Selected Plan: <span className="font-bold text-purple-600">{plans[selectedPlan].name}</span> - {plans[selectedPlan].price}/month
               </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto">
-              {paymentMethods.map((method, index) => (
-                <Button
-                  key={index}
-                  size="lg"
-                  onClick={() => setSelectedPayment(method.name)}
-                  className={`bg-gradient-to-r ${method.color} hover:scale-105 text-white font-semibold py-6 sm:py-8 text-base sm:text-lg rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 border-0`}
-                >
-                  <Icon name={method.icon} className="mr-3" size={24} />
-                  Pay with {method.name}
-                </Button>
-              ))}
-            </div>
-
-              <div className="mt-8 text-center">
-                <p className="text-white/60 text-sm">
-                  🔒 Secure payment • Instant delivery
-                </p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                {paymentMethods.map((method) => (
+                  <button
+                    key={method.name}
+                    onClick={() => setSelectedPayment(method.name)}
+                    className={`p-3 sm:p-6 rounded-2xl border-2 transition-all duration-300 ${
+                      selectedPayment === method.name
+                        ? 'border-purple-600 bg-purple-50 scale-105 shadow-lg'
+                        : 'border-gray-200 bg-white hover:border-purple-300 hover:shadow-md'
+                    }`}
+                  >
+                    <div className={`w-10 h-10 sm:w-16 sm:h-16 mx-auto mb-2 sm:mb-3 rounded-full bg-gradient-to-br ${method.color} flex items-center justify-center`}>
+                      <Icon name={method.icon as any} className="text-white" size={24} />
+                    </div>
+                    <div className="font-bold text-xs sm:text-base text-gray-900">{method.name}</div>
+                  </button>
+                ))}
               </div>
-            </div>
+
+              {selectedPayment && (
+                <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-4 sm:p-6 rounded-2xl border-2 border-purple-200">
+                  {paymentMethods.find(m => m.name === selectedPayment)?.note && (
+                    <div className="bg-yellow-100 border-l-4 border-yellow-500 p-3 sm:p-4 mb-4 rounded">
+                      <p className="text-xs sm:text-sm text-yellow-800 font-semibold">
+                        ⚠️ {paymentMethods.find(m => m.name === selectedPayment)?.note}
+                      </p>
+                    </div>
+                  )}
+                  <h3 className="font-bold text-base sm:text-xl text-gray-900 mb-3 sm:mb-4">
+                    {paymentMethods.find(m => m.name === selectedPayment)?.label}
+                  </h3>
+                  <div className="flex gap-2 sm:gap-3">
+                    <input
+                      type="text"
+                      value={paymentMethods.find(m => m.name === selectedPayment)?.address}
+                      readOnly
+                      className="flex-1 p-2 sm:p-4 border-2 border-purple-300 rounded-xl bg-white font-mono text-xs sm:text-base"
+                    />
+                    <Button
+                      onClick={() => copyToClipboard(
+                        paymentMethods.find(m => m.name === selectedPayment)?.address || '',
+                        paymentMethods.find(m => m.name === selectedPayment)?.label || ''
+                      )}
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-3 sm:px-6"
+                    >
+                      <Icon name="Copy" size={20} />
+                    </Button>
+                  </div>
+                  <p className="text-xs sm:text-sm text-gray-600 mt-3 sm:mt-4">
+                    💡 After payment, contact admin with your transaction ID
+                  </p>
+                </div>
+              )}
+            </Card>
           </div>
         )}
 
@@ -590,149 +344,6 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50">
-        {!chatOpen ? (
-          <Button
-            onClick={() => setChatOpen(true)}
-            size="lg"
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 rounded-full w-14 h-14 sm:w-16 sm:h-16 p-0"
-          >
-            <Icon name="MessageCircle" size={28} />
-          </Button>
-        ) : (
-          <Card className="w-[calc(100vw-2rem)] sm:w-96 h-[70vh] sm:h-[500px] bg-white/95 backdrop-blur-lg border-2 border-white/30 shadow-2xl flex flex-col">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-3 sm:p-4 rounded-t-lg flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-                  <Icon name="User" className="text-white" size={20} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-white text-sm sm:text-base truncate">
-                    {isAuthorized ? userNickname : 'Admin'}
-                  </div>
-                  <div className="text-xs text-white/70 flex items-center gap-1">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    {isAuthorized ? 'You' : 'Online'}
-                  </div>
-                </div>
-              </div>
-              <Button
-                onClick={() => setChatOpen(false)}
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-white/20"
-              >
-                <Icon name="X" size={20} />
-              </Button>
-            </div>
-
-            {!isAuthorized ? (
-              <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
-                <div className="w-full max-w-sm space-y-3 sm:space-y-4">
-                  <div className="text-center mb-4 sm:mb-6">
-                    <Icon name="User" size={40} className="mx-auto mb-2 sm:mb-3 text-purple-600 sm:w-12 sm:h-12" />
-                    <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-1 sm:mb-2">Welcome!</h3>
-                    <p className="text-xs sm:text-sm text-gray-600">
-                      Enter your nickname to start chatting
-                    </p>
-                  </div>
-                  <Input
-                    type="text"
-                    value={nicknameInput}
-                    onChange={(e) => setNicknameInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
-                    placeholder="Your nickname"
-                    className="w-full text-sm sm:text-base"
-                    maxLength={20}
-                  />
-                  <Button
-                    onClick={handleLogin}
-                    className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm sm:text-base py-2 sm:py-3"
-                  >
-                    Start Chat
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-3">
-                  <div className="bg-purple-100 border-l-4 border-purple-600 p-2 sm:p-3 rounded">
-                    <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
-                      <Icon name="Pin" size={12} className="text-purple-600 sm:w-3.5 sm:h-3.5" />
-                      <span className="font-semibold text-xs sm:text-sm text-purple-900">Pinned Message</span>
-                    </div>
-                    <p className="text-xs sm:text-sm text-purple-800">
-                      Welcome! Send your transaction ID after payment. We'll verify it within 5 minutes.
-                    </p>
-                  </div>
-
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      <div
-                        className={`max-w-[80%] sm:max-w-[75%] rounded-2xl px-3 py-2 sm:px-4 ${
-                          msg.sender === 'user'
-                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                            : 'bg-gray-200 text-gray-900'
-                        }`}
-                      >
-                        {msg.image && (
-                          <img
-                            src={msg.image}
-                            alt="Uploaded"
-                            className="rounded-lg mb-2 max-w-full"
-                          />
-                        )}
-                        <p className="text-xs sm:text-sm break-words">{msg.text}</p>
-                        <p className={`text-[10px] sm:text-xs mt-1 ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
-                          {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                <div className="p-3 sm:p-4 border-t border-gray-200">
-                  <div className="flex gap-1.5 sm:gap-2">
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleImageUpload}
-                      accept="image/*"
-                      className="hidden"
-                    />
-                    <Button
-                      onClick={() => fileInputRef.current?.click()}
-                      variant="outline"
-                      size="sm"
-                      className="px-2 sm:px-3 shrink-0"
-                    >
-                      <Icon name="Image" size={18} className="sm:w-5 sm:h-5" />
-                    </Button>
-                    <Input
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                      placeholder="Type a message..."
-                      className="flex-1 text-sm sm:text-base"
-                    />
-                    <Button
-                      onClick={handleSendMessage}
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-3 sm:px-4 shrink-0"
-                    >
-                      <Icon name="Send" size={18} className="sm:w-5 sm:h-5" />
-                    </Button>
-                  </div>
-                </div>
-              </>
-            )}
-          </Card>
-        )}
-      </div>
-
       <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 flex flex-col gap-2 sm:gap-3">
         <Button
           onClick={() => window.open('https://t.me/tokare2', '_blank')}
@@ -742,79 +353,23 @@ const Index = () => {
           <Icon name="Send" className="mr-1 sm:mr-2" size={18} />
           Contact Admin
         </Button>
-        
-        <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl px-3 py-2 sm:px-4 sm:py-3 shadow-xl">
-          <div className="flex items-center gap-2 text-white">
-            <Icon name="Users" size={18} />
-            <div className="text-xs sm:text-sm">
-              <div className="font-semibold">{visitors.toLocaleString()}</div>
-              <div className="text-xs text-white/60">Visitors</div>
-            </div>
+
+        <div className="bg-white/20 backdrop-blur-lg rounded-2xl px-3 sm:px-4 py-2 sm:py-3 border border-white/30 text-white text-xs sm:text-sm font-semibold text-center shadow-lg">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span>Online Support</span>
           </div>
         </div>
       </div>
 
-      <Dialog open={!!selectedPayment} onOpenChange={() => setSelectedPayment(null)}>
-        <DialogContent className="sm:max-w-md bg-gradient-to-br from-purple-900 to-pink-900 border-white/20 text-white">
+      <Dialog open={selectedPlan !== null} onOpenChange={(open) => !open && setSelectedPlan(null)}>
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">
-              {selectedPayment && (
-                <span className="flex items-center gap-2">
-                  <Icon 
-                    name={paymentMethods.find(m => m.name === selectedPayment)?.icon || 'Wallet'} 
-                    size={28} 
-                  />
-                  Pay with {selectedPayment}
-                </span>
-              )}
-            </DialogTitle>
-            <DialogDescription className="text-white/70">
-              Send payment to the address below
+            <DialogTitle>Complete Your Purchase</DialogTitle>
+            <DialogDescription>
+              Follow the payment instructions above to complete your subscription.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-white/10 backdrop-blur p-4 rounded-lg border border-white/20">
-              <p className="text-sm text-white/60 mb-2">
-                {selectedPayment && paymentMethods.find(m => m.name === selectedPayment)?.label}
-              </p>
-              <p className="font-mono text-sm break-all text-white">
-                {selectedPayment && paymentMethods.find(m => m.name === selectedPayment)?.address}
-              </p>
-              {selectedPayment && paymentMethods.find(m => m.name === selectedPayment)?.note && (
-                <div className="mt-3 p-2 bg-yellow-500/20 border border-yellow-500/30 rounded">
-                  <p className="text-xs text-yellow-200 font-semibold flex items-center gap-1">
-                    <Icon name="AlertCircle" size={14} />
-                    {paymentMethods.find(m => m.name === selectedPayment)?.note}
-                  </p>
-                </div>
-              )}
-            </div>
-            <Button
-              onClick={() => {
-                const address = paymentMethods.find(m => m.name === selectedPayment)?.address;
-                if (address) copyToClipboard(address);
-              }}
-              className="w-full bg-white/20 hover:bg-white/30 text-white border border-white/30"
-            >
-              <Icon name="Copy" className="mr-2" size={18} />
-              Copy Address
-            </Button>
-            <div className="pt-4 space-y-3">
-              <div className="text-center text-sm text-white/60">
-                <p>After payment, contact admin with your transaction ID</p>
-              </div>
-              <Button
-                onClick={() => {
-                  window.open('https://t.me/tokare2', '_blank');
-                  setChatOpen(true);
-                }}
-                className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold"
-              >
-                <Icon name="Send" className="mr-2" size={18} />
-                Contact Admin on Telegram
-              </Button>
-            </div>
-          </div>
         </DialogContent>
       </Dialog>
     </div>
