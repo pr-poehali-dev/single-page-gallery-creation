@@ -423,9 +423,19 @@ const Index = () => {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-center mb-3 md:mb-4">
             Choose Your Plan
           </h2>
-          <p className="text-base sm:text-xl text-white/80 text-center mb-8 md:mb-12">
+          <p className="text-base sm:text-xl text-white/80 text-center mb-4 md:mb-6">
             Select the perfect package for your needs
           </p>
+          <div className="flex justify-center mb-8 md:mb-12">
+            <Button
+              onClick={() => document.querySelector('[data-animate="pricing"]')?.scrollIntoView({ behavior: 'smooth' })}
+              size="lg"
+              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-8 py-6 text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+            >
+              <Icon name="ShoppingCart" className="mr-2 h-6 w-6" />
+              Open Buy Menu
+            </Button>
+          </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {pricingPlans.map((plan, index) => (
@@ -797,7 +807,10 @@ const Index = () => {
                 <p>After payment, contact admin with your transaction ID</p>
               </div>
               <Button
-                onClick={() => window.open('https://t.me/tokare2', '_blank')}
+                onClick={() => {
+                  window.open('https://t.me/tokare2', '_blank');
+                  setChatOpen(true);
+                }}
                 className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold"
               >
                 <Icon name="Send" className="mr-2" size={18} />
