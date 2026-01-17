@@ -373,16 +373,6 @@ const Index = () => {
         </div>
       </div>
 
-      <Dialog open={selectedPlan !== null} onOpenChange={(open) => !open && setSelectedPlan(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Complete Your Purchase</DialogTitle>
-            <DialogDescription>
-              Follow the payment instructions above to complete your subscription.
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
