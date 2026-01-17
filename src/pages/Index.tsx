@@ -118,7 +118,10 @@ const Index = () => {
   ];
 
   const pricingPlans = [
+    { price: 12, videos: '1,000', popular: false },
     { price: 20, videos: '3,000', popular: true },
+    { price: 30, videos: '5,500', popular: false },
+    { price: 60, videos: '30,000', popular: false },
   ];
 
   const cryptoDonations = [
